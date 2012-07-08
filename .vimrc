@@ -1,0 +1,115 @@
+:set nu
+
+" Set 'nocompatible' to ward off unexpected things that your distro might
+" have made, as well as sanely reset options when re-sourcing .vimrc
+set nocompatible
+
+filetype indent plugin on " Detect file type by format or content
+
+filetype plugin on	" Provides Intelligent Auto-Indenting
+
+syntax on 		" Enables Syntax Highlighting	
+
+set hidden 		" Hides Buffers, even when unsaved. Complaints if exit without saving.
+
+" Hide the toobar and menubar
+set guioptions-=m
+set guioptions-=T
+" window for multiple buffers, and/or:
+" set confirm
+" set autowriteall
+
+set wildmenu		" Better Command-Line completion
+
+set showcmd		" Show partial commands in the last line of the screen
+
+set hlsearch		" Highlight search.
+
+set ignorecase 		" Ignore case when searching
+set smartcase		" Ignore case when search pattern all lowercase. Case-sensitive otherwise.
+
+" Tab Settings. Taken from the Hitchhiker's guide to Python.
+" set tabstop=4
+" set softtabstop=4
+" set expandtab 
+" set shiftround
+" set shiftwidth=4
+
+
+set confirm		" Dialog asking if you want to save changed files.
+
+"set visualbell		" Use visual bell instead of beeping when doing something wrong
+
+set mouse=a 		" Enable use of the mouse for all modes
+
+set pastetoggle=<F2>	" Temporarily disables auto indenting and other stuff. Use right before pasting large amount of code.
+" This will stop vim from applying it's own indenting features on the paste.
+
+
+" Easy Hex editing mode
+" nnoremap <C-H> :Hexmode<CR>
+" inoremap <C-H> <Esc>:Hexmode<CR>
+" vnoremap <C-H> :<C-U>Hexmode<CR>
+ 
+" Colorscheme for the GVim 
+if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
+	colorscheme jellybeans 
+	set guifont=Droid\ Sans\ Mono\ 9
+	" set guifont=DroidSandMono-Powerline\ 9
+endif
+
+" Pathogen Plugin manager info
+" Pathogen plugin manager activation; https://github.com/tpope/vim-pathogen 
+" Extract plugins to ~/.vim/bundle , and they'll be added to the 'runtimepath' automatically.
+" Example - cd ~/.vim/bundle/; git clone git://github.com/tpope/vim-fugitive.git installs the fugitive.vim plugin
+
+call pathogen#infect() 
+
+" Currently installed plugins --------
+" NERDTree
+" tcomment
+" matchit
+" Fuzz finder
+" vim-powerline (needs weird fontpatcher stuff)
+" CtrlP
+"-------------- Some Custom Mappings ---------------------------------
+let mapleader = ";" "Changing the default <leader> key from \ to ;
+
+map <C-n> :NERDTreeToggle<CR>
+
+"Disable the arrow keys: Doesn't seem to have any affect.
+" map <up> <nop>
+" map <down> <nop>
+" map <left> <nop>
+" map <right> <nop>
+
+"Shortcut for opening Split-Windows
+map <leader>o :split
+map <leader>e :vsplit
+
+"Easy Split-Window navigation:
+map <C-h> <C-w>h
+map <C-j> <C-w>j
+map <C-k> <C-w>k
+map <C-l> <C-w>l
+
+" Clearing the search buffer by pressing ,/ (Note - NOT the leader key)
+nmap <silent> ,/ :nohlsearch<CR>
+
+" Reopen a file in sudo-mode by pressing w!!
+cmap w!! w !sudo tee % >/dev/null
+
+" Settings for vim-powerline
+let g:Powerline_symbols = 'fancy'
+set laststatus=2		" Always show the status line
+set encoding=utf-8
+
+" Ignore certain files while exploring.
+set wildignore+=*.swp,*.zip
+
+map <leader>b :CtrlPBuffer<CR>
+
+" Fuzzy Finder mappings
+map <leader>ff :FufFile<CR>
+map <leader>fb :FufBuffer<CR>
+map <leader>fd :FufDir<CR>
