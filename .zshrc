@@ -39,45 +39,56 @@ at_underloff=%{$'\e[24m'%}
 at_blinkoff=%{$'\e[25m'%}
 at_reverseoff=%{$'\e[27m'%}
 at_strikeoff=%{$'\e[29m'%}
- 
- 
-PROMPT="
-${fg_lgreen}%n@${at_underl}%m${at_underloff}${fg_white}[${fg_cyan}%~${fg_white}]
-[${fg_green}%T${fg_white}]:${at_normal}"
- 
+
+
+# PROMPT="
+# ${fg_lgreen}%n@${at_underl}%m${at_underloff}${fg_white}[${fg_cyan}%~${fg_white}]
+# [${fg_green}%T${fg_white}]:${at_normal}"
+
+PROMPT="${fg_white}[${fg_cyan}%~${fg_white}]${at_bold}${fg_red}➜ ${at_boldoff}${at_normal}"
+
 #Set the auto completion on
 autoload -U compinit
 compinit
- 
+
 #Lets set some options
 #setopt correctall
 setopt autocd
 setopt auto_resume
- 
+
 ## Enables the extgended globbing features
 setopt extendedglob
- 
+
 #Set some ZSH styles
 zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
 zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
- 
+
 HISTFILE=~/.zsh-histfile
 HISTSIZE=1000
 SAVEHIST=1000
- 
+
 #Aliases
 #ls aliases
-alias ls='ls --color' 
+alias ls='ls --color'
 alias l='ls -lFh'     #size,show type,human readable
 alias la='ls -lAFh'   #long list,show almost all,show type,human readable
 alias lr='ls -tRFh'   #sorted by date,recursive,show type,human readable
 alias lt='ls -ltFh'   #long list,sorted by date,show type,human readable
- 
+
 #cd, because typing the backslash is ALOT of work!!
 alias .='cd ../'
 alias ..='cd ../../'
 alias ...='cd ../../../'
 alias ....='cd ../../../../'
+
+alias cdp='cd ~/dev/Python/'
+# apt-get shortcuts
+alias install='sudo apt-get install'
+alias search='sudo apt-cache search'
+alias remove='sudo apt-get remove'
+alias update='sudo apt-get update'
+alias upgrade='sudo apt-get upgrade'
+
 ##Long list format with ll
 alias ll='ls -alF'
 ##rm, ask before deleting
@@ -93,12 +104,12 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 #python alias
 alias p='ipython'
-alias bp='bpython' 
+alias bp='bpython'
 # SSH aliases - short cuts to ssh to a host
 alias -g shost='ssh -p 9999 user@host.com'
- 
+
 # Screen aliases - add a new screen , or entire session, name it, then ssh to the host
-alias sshost='screen -t HOST shost'
+# alias sshost='screen -t HOST shost'
 
 ##Sublime text 2
 alias subl='~/Applications/Sublime\ Text\ 2/sublime_text'
@@ -114,24 +125,9 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:
 #gvim () { command gvim --remote-silent $@ || command gvim $@; }
 #alias gvim='gvim --remote-silent'
 
-
-#PDF Viever. Type file.pdf to open the Document viewer
-if [[ -x `which kpdf` ]]; then
-	alias -s 'pdf=kfmclient exec'
-else
-	if [[ -x `which gpdf` ]]; then
-		alias -s 'pdf=gpdf'
-	else
-		if [[ -x `which evince` ]]; then
-			alias -s 'pdf=evince'
-		fi
-	fi
-fi
-
-
 # virtualenvwrapper path.
 export WORKON_HOME="$HOME/dev/src/PyProjects"
 source /usr/local/bin/virtualenvwrapper.sh
 
 # Google App Engine Path
-export PATH="$PATH:~/dev/google_appengine/"
+export PATH="$PATH:/home/naeblis/dev/google_appengine/"
