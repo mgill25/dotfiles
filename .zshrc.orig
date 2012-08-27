@@ -109,8 +109,7 @@ alias egrep='egrep -n --color=auto'
 alias p='ipython'
 alias bp='bpython'
 # SSH aliases - short cuts to ssh to a host
-# alias -g shost='ssh -p 9999 user@host.com'
-alias -g sshbc='ssh -p 2222 mgill@theburningcode.com'
+alias -g shost='ssh -p 9999 user@host.com'
 
 # Screen aliases - add a new screen , or entire session, name it, then ssh to the host
 # alias sshost='screen -t HOST shost'
