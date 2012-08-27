@@ -10,10 +10,10 @@ filetype plugin on	" Provides Intelligent Auto-Indenting
 
 syntax on 		" Enables Syntax Highlighting	
 
-set hidden 		" Hides Buffers, even when unsaved. Complaints if exit without saving.
+" set hidden 		" Hides Buffers, even when unsaved. Complaints if exit without saving.
 
 " Hide the toobar and menubar
-set guioptions-=m
+" set guioptions-=m
 set guioptions-=T
 " window for multiple buffers, and/or:
 " set confirm
@@ -54,10 +54,13 @@ set pastetoggle=<F2>	" Temporarily disables auto indenting and other stuff. Use 
 " Colorscheme for the GVim 
 if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
 	colorscheme jellybeans 
-	set guifont=Droid\ Sans\ Mono\ 9
+	" colorscheme tutticolori
+	" set guifont=Droid\ Sans\ Mono\ 9
+	set guifont=Monaco\ 10
+	" colorscheme mustang
 	" set guifont=DroidSandMono-Powerline\ 9
 endif
-
+" let g:molokai_original=1
 " Pathogen Plugin manager info
 " Pathogen plugin manager activation; https://github.com/tpope/vim-pathogen 
 " Extract plugins to ~/.vim/bundle , and they'll be added to the 'runtimepath' automatically.
@@ -72,6 +75,7 @@ call pathogen#infect()
 " Fuzz finder
 " vim-powerline (needs weird fontpatcher stuff)
 " CtrlP
+" Tagbar
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
@@ -87,6 +91,8 @@ map <C-n> :NERDTreeToggle<CR>
 map <leader>o :split
 map <leader>e :vsplit
 
+"Quickly open new tabs
+map <leader>t :tabnew<CR>
 "Easy Split-Window navigation:
 map <C-h> <C-w>h
 map <C-j> <C-w>j
@@ -113,3 +119,15 @@ map <leader>b :CtrlPBuffer<CR>
 map <leader>ff :FufFile<CR>
 map <leader>fb :FufBuffer<CR>
 map <leader>fd :FufDir<CR>
+
+" Tagbar mappings
+" g:tagbar_ctags_bin
+nmap <leader>q :TagbarToggle<CR>
+
+" Clipboard settings
+
+"copy to the clipboardd
+vmap <leader>y :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u 
+"paste from the clipboard
+map <leader>p :set paste<CR>i<CR><CR><Esc>k:.!xclip -o<CR>JxkJx:set nopaste<CR>
+
