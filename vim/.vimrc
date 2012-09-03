@@ -44,7 +44,7 @@ set mouse=a 		" Enable use of the mouse for all modes
 
 set pastetoggle=<F2>	" Temporarily disables auto indenting and other stuff. Use right before pasting large amount of code.
 " This will stop vim from applying it's own indenting features on the paste.
-
+let NERDTreeShowBookmarks=1 " Display the NERDTree Bookmarks table on vim startup
 
 " Easy Hex editing mode
 " nnoremap <C-H> :Hexmode<CR>
@@ -53,8 +53,7 @@ set pastetoggle=<F2>	" Temporarily disables auto indenting and other stuff. Use 
  
 " Colorscheme for the GVim 
 if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
-	colorscheme jellybeans 
-	" colorscheme tutticolori
+	colorscheme Tomorrow-Night
 	" set guifont=Droid\ Sans\ Mono\ 9
 	set guifont=Monaco\ 10
 	" colorscheme mustang
@@ -69,13 +68,19 @@ endif
 call pathogen#infect() 
 
 " Currently installed plugins --------
+" Pathogen (Obviously)
+" autoload
 " NERDTree
 " tcomment
 " matchit
-" Fuzz finder
+" Fuzzy finder
 " vim-powerline (needs weird fontpatcher stuff)
 " CtrlP
+" snipMate
 " Tagbar
+" Taglist; lets see how different it is from Tagbar
+" vim-powerline <3
+" zoom
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
@@ -123,11 +128,14 @@ map <leader>fd :FufDir<CR>
 " Tagbar mappings
 " g:tagbar_ctags_bin
 nmap <leader>q :TagbarToggle<CR>
+" Taglist mappings. 
+nmap <leader>w :TlistToggle<CR>
 
 " Clipboard settings
-
 "copy to the clipboardd
 vmap <leader>y :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u 
 "paste from the clipboard
 map <leader>p :set paste<CR>i<CR><CR><Esc>k:.!xclip -o<CR>JxkJx:set nopaste<CR>
 
+"Generate python ctags
+map <F11> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
