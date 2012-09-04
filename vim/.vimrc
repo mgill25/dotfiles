@@ -28,13 +28,12 @@ set hlsearch		" Highlight search.
 set ignorecase 		" Ignore case when searching
 set smartcase		" Ignore case when search pattern all lowercase. Case-sensitive otherwise.
 
-" Tab Settings. Taken from the Hitchhiker's guide to Python.
-" set tabstop=4
-" set softtabstop=4
-" set expandtab 
-" set shiftround
-" set shiftwidth=4
-
+"Indentation Settings. Taken from the Hitchhiker's guide to Python.
+set tabstop=4
+set softtabstop=4
+set expandtab 
+set shiftround
+set shiftwidth=4
 
 set confirm		" Dialog asking if you want to save changed files.
 
@@ -53,11 +52,13 @@ let NERDTreeShowBookmarks=1 " Display the NERDTree Bookmarks table on vim startu
  
 " Colorscheme for the GVim 
 if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
-	colorscheme Tomorrow-Night
 	" set guifont=Droid\ Sans\ Mono\ 9
 	set guifont=Monaco\ 10
 	" colorscheme mustang
-	" set guifont=DroidSandMono-Powerline\ 9
+	colorscheme Tomorrow-Night
+	" colorscheme github
+	" colorscheme distinguished
+	" colorscheme grb256
 endif
 " let g:molokai_original=1
 " Pathogen Plugin manager info
