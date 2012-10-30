@@ -1,5 +1,7 @@
 :set nu
 
+
+
 " Set 'nocompatible' to ward off unexpected things that your distro might
 " have made, as well as sanely reset options when re-sourcing .vimrc
 set nocompatible
@@ -29,11 +31,20 @@ set ignorecase 		" Ignore case when searching
 set smartcase		" Ignore case when search pattern all lowercase. Case-sensitive otherwise.
 
 "Indentation Settings. Taken from the Hitchhiker's guide to Python.
-set tabstop=4
-set softtabstop=4
+set scrolloff=3
+set title
+set ttyfast
+"set tabstop=4
+"set softtabstop=4
 set expandtab 
 set shiftround
 set shiftwidth=4
+autocmd FileType python set tabstop=4
+autocmd FileType javascript set tabstop=2
+autocmd FileType html set tabstop=2
+autocmd FileType css set tabstop=2
+autocmd FileType cpp set tabstop=8
+autocmd FileType c set tabstop=4
 
 set confirm		" Dialog asking if you want to save changed files.
 
@@ -54,11 +65,15 @@ let NERDTreeShowBookmarks=1 " Display the NERDTree Bookmarks table on vim startu
 if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
 	" set guifont=Droid\ Sans\ Mono\ 9
 	set guifont=Monaco\ 10
-	" colorscheme mustang
-	colorscheme Tomorrow-Night
-	" colorscheme github
+        " colorscheme twilight
+	" colorscheme molokai 
+	" colorscheme Tomorrow-Night
+	colorscheme github
 	" colorscheme distinguished
 	" colorscheme grb256
+else
+        " Temporary colorscheme for the gnome-terminal
+        colorscheme grb256 
 endif
 " let g:molokai_original=1
 " Pathogen Plugin manager info
@@ -80,8 +95,8 @@ call pathogen#infect()
 " snipMate
 " Tagbar
 " Taglist; lets see how different it is from Tagbar
-" vim-powerline <3
 " zoom
+" PyDiction; trying to use python tab-completion. 
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
@@ -113,6 +128,7 @@ cmap w!! w !sudo tee % >/dev/null
 
 " Settings for vim-powerline
 let g:Powerline_symbols = 'fancy'
+set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
 set laststatus=2		" Always show the status line
 set encoding=utf-8
 
@@ -135,8 +151,27 @@ nmap <leader>w :TlistToggle<CR>
 " Clipboard settings
 "copy to the clipboardd
 vmap <leader>y :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u 
+
 "paste from the clipboard
 map <leader>p :set paste<CR>i<CR><CR><Esc>k:.!xclip -o<CR>JxkJx:set nopaste<CR>
 
+" PyDiction settings
+let g:pydiction_location = '~/.vim/bundle/Pydiction/complete-dict'
+let g:pydiction_menu_height = 15
+
+" Tabs shortcuts
+map <leader>j :tabnext<CR>
+map <leader>k :tabprevious<CR>
+
+" Execute currently open script
+map <leader>e :!%:p<CR>
+" and for when command line args are needed!
+map <leader>w :!%:p           
+
 "Generate python ctags
 map <F11> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
+
+" Racket file settings
+if has("autocmd")
+    au BufReadPost *.rkt,*.rktl set filetype=scheme
+endif
