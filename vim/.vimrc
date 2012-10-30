@@ -166,7 +166,7 @@ map <leader>k :tabprevious<CR>
 " Execute currently open script
 map <leader>e :!%:p<CR>
 " and for when command line args are needed!
-map <leader>w :!%:p           
+map <leader>r :!%:p           
 
 "Generate python ctags
 map <F11> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
