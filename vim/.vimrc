@@ -65,12 +65,10 @@ let NERDTreeShowBookmarks=1 " Display the NERDTree Bookmarks table on vim startu
 if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
 	" set guifont=Droid\ Sans\ Mono\ 9
 	set guifont=Monaco\ 10
-        " colorscheme twilight
-	" colorscheme molokai 
-	" colorscheme Tomorrow-Night
-	colorscheme github
-	" colorscheme distinguished
-	" colorscheme grb256
+	" colorscheme github
+        set background=light
+        colorscheme solarized
+        let g:solarized_diffmode="high"       
 else
         " Temporary colorscheme for the gnome-terminal
         colorscheme grb256 
@@ -97,6 +95,7 @@ call pathogen#infect()
 " Taglist; lets see how different it is from Tagbar
 " zoom
 " PyDiction; trying to use python tab-completion. 
+" Fugitive - git wrapper for vim
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
@@ -166,7 +165,7 @@ map <leader>k :tabprevious<CR>
 " Execute currently open script
 map <leader>e :!%:p<CR>
 " and for when command line args are needed!
-map <leader>r :!%:p           
+map <leader>r :!%:p 
 
 "Generate python ctags
 map <F11> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
