@@ -1,0 +1,47 @@
+[global_config]
+  title_transmit_bg_color = "#d30102"
+  focus = system
+[keybindings]
+[profiles]
+  [[default]]
+    scrollbar_position = hidden
+    palette = "#000000:#cd0000:#00cd00:#9a9a0f:#1e90ff:#cd00cd:#5ac2c2:#929292:#4c4c4c:#ff0000:#1ca01c:#b96d1f:#00a8bd:#ff00ff:#f13890:#ffffff"
+    background_darkness = 0.9
+    background_type = transparent
+    use_system_font = False
+    foreground_color = "#ffffff"
+    show_titlebar = False
+    font = Monaco for Powerline 10
+    allow_bold = False
+  [[solarized-dark]]
+    scrollbar_position = hidden
+    palette = "#073642:#dc322f:#859900:#b58900:#268bd2:#d33682:#2aa198:#eee8d5:#002b36:#cb4b16:#586e75:#657b83:#839496:#6c71c4:#93a1a1:#fdf6e3"
+    use_system_font = False
+    cursor_color = "#eee8d5"
+    foreground_color = "#eee8d5"
+    background_color = "#002b36"
+    show_titlebar = False
+    font = Monaco for Powerline 10
+    allow_bold = False
+  [[solarized-light]]
+    sscrollbar_position = hidden
+    palette = "#073642:#dc322f:#859900:#b58900:#268bd2:#d33682:#2aa198:#eee8d5:#002b36:#cb4b16:#586e75:#657b83:#839496:#6c71c4:#93a1a1:#fdf6e3"
+    use_system_font = False
+    cursor_color = "#002b36"
+    foreground_color = "#002b36"
+    background_color = "#eee8d5"
+    show_titlebar = False
+    font = Monaco for Powerline 10
+    allow_bold = False 
+    scrollbar_position = hidden
+[layouts]
+  [[default]]
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+      profile = solarized-light
+    [[[window0]]]
+      type = Window
+      parent = ""
+      profile = solarized-light
+[plugins]
