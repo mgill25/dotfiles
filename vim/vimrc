@@ -1,19 +1,13 @@
 :set nu
-
-
-
 " Set 'nocompatible' to ward off unexpected things that your distro might
 " have made, as well as sanely reset options when re-sourcing .vimrc
 set nocompatible
+set backspace=indent,eol,start
 
 filetype indent plugin on " Detect file type by format or content
-
 filetype plugin on	" Provides Intelligent Auto-Indenting
-
 syntax on 		" Enables Syntax Highlighting	
-
 " set hidden 		" Hides Buffers, even when unsaved. Complaints if exit without saving.
-
 " Hide the toobar and menubar
 " set guioptions-=m
 set guioptions-=T
@@ -21,12 +15,34 @@ set guioptions-=T
 " set confirm
 " set autowriteall
 
+" Colorscheme for the GVim 
+if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
+	"set guifont=Droid\ Sans\ Mono\ 9
+	set guifont=Monaco\ 10
+        "set guifont=Inconsolata\ 14
+	      colorscheme distinguished 
+        "set background=light
+        "colorscheme solarized
+        set bg=dark 
+else
+        " Temporary colorscheme for the gnome-terminal
+        " colorscheme grb256 
+	      colorscheme jellybeans 
+        set bg=dark 
+endif
+let g:solarized_diffmode="high"       
+" let g:molokai_original=1
+
+" The PC is fast enough, do syntax highlight syncing from start
+autocmd BufEnter * :syntax sync fromstart
+
+call pathogen#infect() 
+
 set wildmenu		" Better Command-Line completion
-
+set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*$py.class,*.class,*.zip,*.sw[op]
+"set wildmode=list:full
 set showcmd		" Show partial commands in the last line of the screen
-
 set hlsearch		" Highlight search.
-
 set ignorecase 		" Ignore case when searching
 set smartcase		" Ignore case when search pattern all lowercase. Case-sensitive otherwise.
 
@@ -38,74 +54,58 @@ set ttyfast
 "set softtabstop=4
 set expandtab 
 set shiftround
-set shiftwidth=4
-autocmd FileType python set tabstop=4
-autocmd FileType javascript set tabstop=2
-autocmd FileType html set tabstop=2
-autocmd FileType css set tabstop=2
-autocmd FileType cpp set tabstop=8
-autocmd FileType c set tabstop=4
+"set shiftwidth=4
+autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
+autocmd BufNewFile,BufRead *.json setlocal ft=javascript
+let javascript_enable_domhtmlcss=1
+autocmd FileType html set tabstop=2 softtabstop=2 shiftwidth=2
+autocmd FileType css set tabstop=2 softtabstop=2 shiftwidth=2
+autocmd FileType cpp set tabstop=8 softtabstop=8 shiftwidth=8
+autocmd FileType c set tabstop=4 softtabstop=4 shiftwidth=4
+au FileType make setlocal noexpandtab " Don't expand tabs into spaces when editing makefiles
 
 set confirm		" Dialog asking if you want to save changed files.
-
 "set visualbell		" Use visual bell instead of beeping when doing something wrong
-
 set mouse=a 		" Enable use of the mouse for all modes
-
+set mousemodel=popup
 set pastetoggle=<F2>	" Temporarily disables auto indenting and other stuff. Use right before pasting large amount of code.
 " This will stop vim from applying it's own indenting features on the paste.
-let NERDTreeShowBookmarks=1 " Display the NERDTree Bookmarks table on vim startup
 
-" Easy Hex editing mode
-" nnoremap <C-H> :Hexmode<CR>
-" inoremap <C-H> <Esc>:Hexmode<CR>
-" vnoremap <C-H> :<C-U>Hexmode<CR>
- 
-" Colorscheme for the GVim 
-if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
-	" set guifont=Droid\ Sans\ Mono\ 9
-	set guifont=Monaco\ 10
-	" colorscheme github
-        set background=light
-        colorscheme solarized
-        let g:solarized_diffmode="high"       
-else
-        " Temporary colorscheme for the gnome-terminal
-        colorscheme grb256 
-endif
-" let g:molokai_original=1
+" Change the statusline display to something that looks useful.
+" set cmdheight=2
+set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ (%{&ff})\ %{fugitive#statusline()}      " requires fugitive.
+set showcmd
+
+set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
+set laststatus=2		" Always show the status line
+set encoding=utf-8
+
 " Pathogen Plugin manager info
 " Pathogen plugin manager activation; https://github.com/tpope/vim-pathogen 
 " Extract plugins to ~/.vim/bundle , and they'll be added to the 'runtimepath' automatically.
 " Example - cd ~/.vim/bundle/; git clone git://github.com/tpope/vim-fugitive.git installs the fugitive.vim plugin
-
-call pathogen#infect() 
-
 " Currently installed plugins --------
 " Pathogen (Obviously)
 " autoload
 " NERDTree
 " tcomment
 " matchit
-" Fuzzy finder
-" vim-powerline (needs weird fontpatcher stuff)
 " CtrlP
 " snipMate
-" Tagbar
 " Taglist; lets see how different it is from Tagbar
-" zoom
-" PyDiction; trying to use python tab-completion. 
 " Fugitive - git wrapper for vim
+" Gundo
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
 map <C-n> :NERDTreeToggle<CR>
+let NERDTreeIgnore=['\~$', '\.pyc$', '\.pyo$', '\.class$', 'pip-log\.txt$', '\.o$']
+let NERDTreeShowBookmarks=1 " Display the NERDTree Bookmarks table on vim startup
 
-"Disable the arrow keys: Doesn't seem to have any affect.
-" map <up> <nop>
-" map <down> <nop>
-" map <left> <nop>
-" map <right> <nop>
+
+" gundo
+nnoremap <Leader>u :GundoToggle<CR>
 
 "Shortcut for opening Split-Windows
 map <leader>o :split
@@ -113,6 +113,7 @@ map <leader>e :vsplit
 
 "Quickly open new tabs
 map <leader>t :tabnew<CR>
+
 "Easy Split-Window navigation:
 map <C-h> <C-w>h
 map <C-j> <C-w>j
@@ -125,21 +126,8 @@ nmap <silent> ,/ :nohlsearch<CR>
 " Reopen a file in sudo-mode by pressing w!!
 cmap w!! w !sudo tee % >/dev/null
 
-" Settings for vim-powerline
-let g:Powerline_symbols = 'fancy'
-set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
-set laststatus=2		" Always show the status line
-set encoding=utf-8
-
-" Ignore certain files while exploring.
-set wildignore+=*.swp,*.zip
-
 map <leader>b :CtrlPBuffer<CR>
-
-" Fuzzy Finder mappings
-map <leader>ff :FufFile<CR>
-map <leader>fb :FufBuffer<CR>
-map <leader>fd :FufDir<CR>
+let g:ctrlp_dotfiles = 0 " Don't scan for dotfiles and dotdirs
 
 " Tagbar mappings
 " g:tagbar_ctags_bin
@@ -154,13 +142,13 @@ vmap <leader>y :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
 "paste from the clipboard
 map <leader>p :set paste<CR>i<CR><CR><Esc>k:.!xclip -o<CR>JxkJx:set nopaste<CR>
 
-" PyDiction settings
-let g:pydiction_location = '~/.vim/bundle/Pydiction/complete-dict'
-let g:pydiction_menu_height = 15
-
 " Tabs shortcuts
 map <leader>j :tabnext<CR>
 map <leader>k :tabprevious<CR>
+
+" Quickly Change Font-Size, since it's something I seem to do a lot.
+nmap <leader>1 :set guifont=Monaco\ 13<CR>
+nmap <leader>0 :set guifont=Monaco\ 10<CR>
 
 " Execute currently open script
 map <leader>e :!%:p<CR>

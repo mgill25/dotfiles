@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/home/naeblis/dev/Python/Learning/Collective_Intelligence'
+let g:netrw_dirhist_2='/home/naeblis/dev/Python/Learning'
+let g:netrw_dirhist_3='/home/naeblis/dev/Python/Learning/HTML_parsing'
+let g:netrw_dirhist_4='/home/naeblis/dev/Python/Learning/Algorithms'
+let g:netrw_dirhist_5='/home/naeblis'
+let g:netrw_dirhist_6='/home/naeblis/dev/src/PyProjects/sc/sportschimp/api'
+let g:netrw_dirhist_7='/home/naeblis/.config/terminator'
+let g:netrw_dirhist_8='/home/naeblis/.config'
