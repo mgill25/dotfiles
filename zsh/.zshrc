@@ -6,7 +6,7 @@ ZSH=$HOME/.oh-my-zsh
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
 ZSH_THEME="robbyrussell"
-
+#ZSH_THEME="norm"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
@@ -29,12 +29,30 @@ ZSH_THEME="robbyrussell"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git)
+plugins=(git django mercurial)
 
 source $ZSH/oh-my-zsh.sh
 
 # Customize to your needs...
-export PATH=/home/naeblis/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/home/naeblis/dev/google_appengine/
+export PATH=/home/naeblis/bin:/home/naeblis/bin/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/home/naeblis/dev/google_appengine/
+
+# virtualenvwrapper path.
+export WORKON_HOME="$HOME/dev/src/PyProjects"
+source /usr/local/bin/virtualenvwrapper.sh
+
+# Google App Engine Path
+# export PATH="$PATH:/home/naeblis/dev/google_appengine/"
+#
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
+
+# Add RVM to PATH for scripting
+PATH=$PATH:$HOME/.rvm/bin 
+
+# Custom Prompt
+export PS1="\$(~/.rvm/bin/rvm-prompt i u)$PS1"
+# ri format settings
+export RI="--format ansi --width 70"
 
 #Set the auto completion on
 autoload -U compinit
@@ -70,13 +88,18 @@ alias ..='cd ../../'
 alias ...='cd ../../../'
 alias ....='cd ../../../../'
 
+alias cdd='cd ~/dev'
 alias cdp='cd ~/dev/Python/'
+alias proj='cd ~/dev/Projects/'
 # apt-get shortcuts
 alias install='sudo apt-get install'
 alias search='sudo apt-cache search'
 alias remove='sudo apt-get remove'
 alias update='sudo apt-get update'
 alias upgrade='sudo apt-get upgrade'
+alias autoremove='sudo apt-get autoremove'
+alias clean='sudo apt-get clean'
+alias audoclean='sudo apt-get autoclean'
 
 ##Long list format with ll
 alias ll='ls -alF'
@@ -91,12 +114,16 @@ alias mv='mv -i'
 alias grep='grep -n --color=auto'
 alias fgrep='fgrep -n --color=auto'
 alias egrep='egrep -n --color=auto'
+# ack alias. (betterthangrep.com
+alias ack='ack --no-recurse'
 #python alias
 alias p='ipython'
 alias bp='bpython'
+alias rb='irb --simple-prompt'
+
 # SSH aliases - short cuts to ssh to a host
 # alias -g shost='ssh -p 9999 user@host.com'
-alias -g shost='ssh -p 9999 user@thost.com'
+alias -g sshbc='ssh -p 2222 mgill25@theburningcode.com'
 
 # Screen aliases - add a new screen , or entire session, name it, then ssh to the host
 # alias sshost='screen -t HOST shost'
@@ -104,13 +131,19 @@ alias -g shost='ssh -p 9999 user@thost.com'
 # Redis
 alias rs='redis-server'
 alias rc='redis-cli'
+# MongoDB
+alias mongod='sudo ~/Downloads/mongodb-linux-x86_64-2.2.0/bin/mongod'
+alias mongo='sudo ~/Downloads/mongodb-linux-x86_64-2.2.0/bin/mongo'
 # Postgres
 alias pg='sudo su - postgres'
-##Sublime text 2
+# Sublime text 2
 alias subl='~/Applications/Sublime\ Text\ 2/sublime_text'
+# Emacs inside the console. 
+alias em='emacs -nw'
 # Dropbox Deamon
 alias dp='~/.dropbox-dist/dropboxd'
-
+# PyPy alias
+alias pypy='/home/naeblis/dev/src/PyProjects/pypy/pypy-1.9/bin/pypy'
 # Git aliases that I want to keep separate from the plugin
 alias gap='git add -p'	# Selective Commit
 
@@ -123,10 +156,6 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:
 #gvim () { command gvim --remote-silent $@ || command gvim $@; }
 #alias gvim='gvim --remote-silent'
 
-# virtualenvwrapper path.
-export WORKON_HOME="$HOME/dev/src/PyProjects"
-source /usr/local/bin/virtualenvwrapper.sh
-
-# Google App Engine Path
-# export PATH="$PATH:/home/naeblis/dev/google_appengine/"
+# Use vim key bindings on the command line.
+bindkey -v
 
