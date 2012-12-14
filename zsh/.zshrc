@@ -123,7 +123,6 @@ alias rb='irb --simple-prompt'
 
 # SSH aliases - short cuts to ssh to a host
 # alias -g shost='ssh -p 9999 user@host.com'
-alias -g sshbc='ssh -p 2222 mgill25@theburningcode.com'
 
 # Screen aliases - add a new screen , or entire session, name it, then ssh to the host
 # alias sshost='screen -t HOST shost'
