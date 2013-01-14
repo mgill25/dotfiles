@@ -4,3 +4,5 @@ set tabstop=4
 set expandtab
 set softtabstop=4
 set shiftround
+
+map <buffer> K :execute "!pydoc " . expand("<cword>")<CR>

@@ -16,19 +16,21 @@ set guioptions-=T
 " set autowriteall
 
 " Colorscheme for the GVim 
+"set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
 if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
-	"set guifont=Droid\ Sans\ Mono\ 9
-	set guifont=Monaco\ 10
-        "set guifont=Inconsolata\ 14
-	      colorscheme distinguished 
-        "set background=light
-        "colorscheme solarized
-        set bg=dark 
+    "set guifont=Droid\ Sans\ Mono\ 9
+    set guifont=Monaco\ 10
+    "set guifont=Inconsolata\ 14
+    "colorscheme distinguished 
+    "colorscheme candy 
+    "set background=light
+    colorscheme dante 
+    set bg=dark 
 else
-        " Temporary colorscheme for the gnome-terminal
-        " colorscheme grb256 
-	      colorscheme jellybeans 
-        set bg=dark 
+    " Temporary colorscheme for the gnome-terminal
+    " colorscheme grb256 
+    colorscheme default 
+    " set bg=dark 
 endif
 let g:solarized_diffmode="high"       
 " let g:molokai_original=1
@@ -59,10 +61,11 @@ autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd BufNewFile,BufRead *.json setlocal ft=javascript
 let javascript_enable_domhtmlcss=1
-autocmd FileType html set tabstop=2 softtabstop=2 shiftwidth=2
+autocmd FileType html,htmldjango set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType css set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType cpp set tabstop=8 softtabstop=8 shiftwidth=8
 autocmd FileType c set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType ruby set expandtab tabstop=2 softtabstop=2 shiftwidth=2 formatoptions-=c formatoptions-=r formatoptions-=o
 au FileType make setlocal noexpandtab " Don't expand tabs into spaces when editing makefiles
 
 set confirm		" Dialog asking if you want to save changed files.
@@ -74,12 +77,20 @@ set pastetoggle=<F2>	" Temporarily disables auto indenting and other stuff. Use 
 
 " Change the statusline display to something that looks useful.
 " set cmdheight=2
-set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ (%{&ff})\ %{fugitive#statusline()}      " requires fugitive.
+set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ (%{&ff})\ %{fugitive#statusline()}\ \-\-\-\-\-\-\-\-\-\ %L\ lines " requires fugitive.
 set showcmd
 
-set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
 set laststatus=2		" Always show the status line
 set encoding=utf-8
+
+" Automatically generate Shebang
+augroup Shebang
+  autocmd BufNewFile *.py 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
+  autocmd BufNewFile *.rb 0put =\"#!/usr/bin/env ruby -w\<nl># -*- coding: utf-8 -*-\<nl>\"|$
+  autocmd BufNewFile *.sh 0put =\"#!/bin/bash\<nl>\"|$
+  "autocmd BufNewFile *.tex 0put =\"%&plain\<nl>\"|$
+  "autocmd BufNewFile *.\(cc\|hh\) 0put =\"//\<nl>// \".expand(\"<afile>:t\").\" -- \<nl>//\<nl>\"|2|start!
+augroup END
 
 " Pathogen Plugin manager info
 " Pathogen plugin manager activation; https://github.com/tpope/vim-pathogen 
@@ -93,9 +104,12 @@ set encoding=utf-8
 " matchit
 " CtrlP
 " snipMate
-" Taglist; lets see how different it is from Tagbar
 " Fugitive - git wrapper for vim
 " Gundo
+" Gist
+" vim-ruby
+" vim-flake8
+" python-mode
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
@@ -132,8 +146,6 @@ let g:ctrlp_dotfiles = 0 " Don't scan for dotfiles and dotdirs
 " Tagbar mappings
 " g:tagbar_ctags_bin
 nmap <leader>q :TagbarToggle<CR>
-" Taglist mappings. 
-nmap <leader>w :TlistToggle<CR>
 
 " Clipboard settings
 "copy to the clipboardd
@@ -142,21 +154,37 @@ vmap <leader>y :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
 "paste from the clipboard
 map <leader>p :set paste<CR>i<CR><CR><Esc>k:.!xclip -o<CR>JxkJx:set nopaste<CR>
 
-" Tabs shortcuts
-map <leader>j :tabnext<CR>
-map <leader>k :tabprevious<CR>
+" Cycle through buffers 
+map <leader>j :bp<CR>
+map <leader>k :bn<CR>
 
 " Quickly Change Font-Size, since it's something I seem to do a lot.
 nmap <leader>1 :set guifont=Monaco\ 13<CR>
 nmap <leader>0 :set guifont=Monaco\ 10<CR>
+nmap <leader>2 :set guifont=DejaVu\ Sans\ Mono\ 10<CR>
 
 " Execute currently open script
-map <leader>e :!%:p<CR>
+nmap <leader>e :!%:p<CR>
 " and for when command line args are needed!
-map <leader>r :!%:p 
+" nmap <leader>r :!%:p 
+
+" source $MYVIMRC reloads the saved $MYVIMRC
+:nmap <leader>s :source $MYVIMRC<CR>
+" opens $MYVIMRC for editing, or use :tabedit $MYVIMRC
+:nmap <leader>v :e $MYVIMRC<CR>
 
 "Generate python ctags
 map <F11> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
+
+" Flake8 mapping
+autocmd FileType python map <buffer> <leader>8 :call Flake8()<CR>
+" Call Flake8 every time a Python file is written.
+autocmd BufWritePost *.py call Flake8()           
+
+" Python-mode settings 
+let g:pymode_folding = 0
+let g:pymode_doc = 0
+let g:pymode_lint_write = 0
 
 " Racket file settings
 if has("autocmd")
