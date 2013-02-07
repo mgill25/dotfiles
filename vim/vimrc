@@ -1,4 +1,4 @@
-:set nu
+set nu
 " Set 'nocompatible' to ward off unexpected things that your distro might
 " have made, as well as sanely reset options when re-sourcing .vimrc
 set nocompatible
@@ -11,6 +11,8 @@ syntax on 		" Enables Syntax Highlighting
 " Hide the toobar and menubar
 " set guioptions-=m
 set guioptions-=T
+set guioptions-=r
+set guioptions-=L
 " window for multiple buffers, and/or:
 " set confirm
 " set autowriteall
@@ -24,8 +26,8 @@ if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
     "colorscheme distinguished 
     "colorscheme candy 
     "set background=light
-    colorscheme dante 
-    set bg=dark 
+    colorscheme fruity
+    "set background=dark 
 else
     " Temporary colorscheme for the gnome-terminal
     " colorscheme grb256 
@@ -33,13 +35,11 @@ else
     " set bg=dark 
 endif
 let g:solarized_diffmode="high"       
+"set bg=dark
 " let g:molokai_original=1
 
 " The PC is fast enough, do syntax highlight syncing from start
 autocmd BufEnter * :syntax sync fromstart
-
-call pathogen#infect() 
-
 set wildmenu		" Better Command-Line completion
 set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*$py.class,*.class,*.zip,*.sw[op]
 "set wildmode=list:full
@@ -49,7 +49,7 @@ set ignorecase 		" Ignore case when searching
 set smartcase		" Ignore case when search pattern all lowercase. Case-sensitive otherwise.
 
 "Indentation Settings. Taken from the Hitchhiker's guide to Python.
-set scrolloff=3
+set scrolloff=5
 set title
 set ttyfast
 "set tabstop=4
@@ -65,8 +65,15 @@ autocmd FileType html,htmldjango set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType css set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType cpp set tabstop=8 softtabstop=8 shiftwidth=8
 autocmd FileType c set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType sml set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType ruby set expandtab tabstop=2 softtabstop=2 shiftwidth=2 formatoptions-=c formatoptions-=r formatoptions-=o
 au FileType make setlocal noexpandtab " Don't expand tabs into spaces when editing makefiles
+
+" When loading text files, wrap them and don't split up words.
+au BufNewFile,BufRead *.txt setlocal wrap 
+au BufNewFile,BufRead *.txt setlocal lbr
+" Turn on spell-checking in markdown and text.
+" au BufRead,BufNewFile *.md,*.txt setlocal spell
 
 set confirm		" Dialog asking if you want to save changed files.
 "set visualbell		" Use visual bell instead of beeping when doing something wrong
@@ -82,6 +89,8 @@ set showcmd
 
 set laststatus=2		" Always show the status line
 set encoding=utf-8
+set backupdir=~/.tmp
+set directory=~/.tmp " Don't clutter my dirs up with swp and tmp files
 
 " Automatically generate Shebang
 augroup Shebang
@@ -92,24 +101,29 @@ augroup Shebang
   "autocmd BufNewFile *.\(cc\|hh\) 0put =\"//\<nl>// \".expand(\"<afile>:t\").\" -- \<nl>//\<nl>\"|2|start!
 augroup END
 
-" Pathogen Plugin manager info
-" Pathogen plugin manager activation; https://github.com/tpope/vim-pathogen 
-" Extract plugins to ~/.vim/bundle , and they'll be added to the 'runtimepath' automatically.
-" Example - cd ~/.vim/bundle/; git clone git://github.com/tpope/vim-fugitive.git installs the fugitive.vim plugin
-" Currently installed plugins --------
-" Pathogen (Obviously)
-" autoload
-" NERDTree
-" tcomment
-" matchit
-" CtrlP
-" snipMate
-" Fugitive - git wrapper for vim
-" Gundo
-" Gist
-" vim-ruby
-" vim-flake8
-" python-mode
+" Vundle Stuff
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" Let Vundle manage Vundle (required)!
+Bundle 'gmarik/vundle'
+
+" My bundles
+Bundle 'ervandew/supertab'
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-surround'
+Bundle 'vim-ruby/vim-ruby'
+Bundle 'klen/python-mode'
+Bundle 'scrooloose/nerdtree'
+Bundle 'jmartindf/vim-tcomment'
+Bundle 'edsono/vim-matchit'
+Bundle 'belike81/vim-snipmate'
+Bundle 'sjl/gundo.vim'
+Bundle 'nvie/vim-flake8'
+Bundle 'kien/ctrlp.vim'
+Bundle 'mattn/gist-vim'
+Bundle 'majutsushi/tagbar'
+
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
@@ -162,6 +176,7 @@ map <leader>k :bn<CR>
 nmap <leader>1 :set guifont=Monaco\ 13<CR>
 nmap <leader>0 :set guifont=Monaco\ 10<CR>
 nmap <leader>2 :set guifont=DejaVu\ Sans\ Mono\ 10<CR>
+nmap <leader>3 :set guifont=DejaVu\ Sans\ Mono\ 13<CR>
 
 " Execute currently open script
 nmap <leader>e :!%:p<CR>
@@ -173,13 +188,13 @@ nmap <leader>e :!%:p<CR>
 " opens $MYVIMRC for editing, or use :tabedit $MYVIMRC
 :nmap <leader>v :e $MYVIMRC<CR>
 
-"Generate python ctags
-map <F11> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
+" Generate python ctags
+" map <F12> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
 
 " Flake8 mapping
 autocmd FileType python map <buffer> <leader>8 :call Flake8()<CR>
 " Call Flake8 every time a Python file is written.
-autocmd BufWritePost *.py call Flake8()           
+" autocmd BufWritePost *.py call Flake8()           
 
 " Python-mode settings 
 let g:pymode_folding = 0
@@ -190,3 +205,16 @@ let g:pymode_lint_write = 0
 if has("autocmd")
     au BufReadPost *.rkt,*.rktl set filetype=scheme
 endif
+
+" Rename current file
+function! RenameFile()
+        let old_name = expand('%')
+        let new_name = input('New file name: ', expand('%'), 'file')
+        if new_name != '' && new_name != old_name
+                exec ':saveas ' . new_name
+                exec ':silent !rm ' . old_name
+                redraw!
+        endif
+endfunction
+map <leader>n :call RenameFile()<CR>
+
