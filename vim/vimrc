@@ -23,10 +23,8 @@ if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
     "set guifont=Droid\ Sans\ Mono\ 9
     set guifont=Monaco\ 10
     "set guifont=Inconsolata\ 14
-    "colorscheme distinguished 
-    "colorscheme candy 
     "set background=light
-    colorscheme fruity
+    colorscheme macvim
     "set background=dark 
 else
     " Temporary colorscheme for the gnome-terminal
@@ -117,13 +115,14 @@ Bundle 'klen/python-mode'
 Bundle 'scrooloose/nerdtree'
 Bundle 'jmartindf/vim-tcomment'
 Bundle 'edsono/vim-matchit'
-Bundle 'belike81/vim-snipmate'
+Bundle "git://github.com/MarcWeber/vim-addon-mw-utils.git"
+Bundle "git://github.com/tomtom/tlib_vim.git"
 Bundle 'sjl/gundo.vim'
 Bundle 'nvie/vim-flake8'
 Bundle 'kien/ctrlp.vim'
 Bundle 'mattn/gist-vim'
 Bundle 'majutsushi/tagbar'
-
+Bundle 'git://github.com/Bogdanp/pyrepl.vim.git'
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
@@ -178,10 +177,9 @@ nmap <leader>0 :set guifont=Monaco\ 10<CR>
 nmap <leader>2 :set guifont=DejaVu\ Sans\ Mono\ 10<CR>
 nmap <leader>3 :set guifont=DejaVu\ Sans\ Mono\ 13<CR>
 
-" Execute currently open script
-nmap <leader>e :!%:p<CR>
-" and for when command line args are needed!
-" nmap <leader>r :!%:p 
+" PyREPL
+map <leader>e :PyREPLToggle<CR>
+map <leader>l :PyREPLEvalFile<CR>
 
 " source $MYVIMRC reloads the saved $MYVIMRC
 :nmap <leader>s :source $MYVIMRC<CR>
@@ -218,3 +216,14 @@ function! RenameFile()
 endfunction
 map <leader>n :call RenameFile()<CR>
 
+" Absolute/Relative Line Number Toggle
+function! NumberToggle()
+    if(&relativenumber == 1)
+        set number
+    else
+        set relativenumber
+    endif
+endfunction
+nnoremap <leader>g :call NumberToggle()<CR>
+"autocmd InsertEnter * :set number
+"autocmd InsertLeave * :set relativenumber
