@@ -1,6 +1,7 @@
 (require 'linum)
+(add-to-list 'load-path "~/.emacs.d/packages/")
 (global-linum-mode t)
-(setq linum-format "%2d ")
+(setq linum-format "%3d ")
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -20,13 +21,16 @@
 ;(set-default-font "DejaVu Sans Mono-11")
 ;(set-default-font "Inconsolata-15")
 ;(set-default-font "Monospace-11")
-(set-default-font "Monaco for Powerline-13:width=condensed")
+(set-default-font "Monaco for Powerline-11:width=condensed")
 
 ;; Custom Theme Load Path
 ;(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/emacs-color-theme-solarized")
 ;(load-theme 'solarized-dark t)
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'ir-black t)
+(if window-system
+    (progn
+      (load-theme 'ir-black t)))
+;(load-theme 'ir-black t)
 
 ;; Kill the welcome buffer
 (setq inhibit-startup-message t)
@@ -70,11 +74,15 @@
 
 ;; Map <C-j> to Return for auto-indent
 (define-key global-map (kbd "RET") 'newline-and-indent)
-
+;; Doesn't work with Ruby-mode for some reason. So...
+(add-hook 'ruby-mode-hook '(lambda ()
+			     (local-set-key (kbd "RET") 'newline-and-indent)))
 ;; Load Packages
+;; Rainbow Delimiters
+(require 'rainbow-delimiters)
 ;; Geiser, Quack, ParEdit
 (load-file "~/.emacs.d/packages/geiser/elisp/geiser.el")
-(load-file "~/.emacs.d/packages/quack.el")
+;;(load-file "~/.emacs.d/packages/quack.el")
 (load-file "~/.emacs.d/packages/paredit.el")
 (load-file "~/.emacs.d/packages/pretty-mode.el")
 ;; Autoload the ParEdit mode with Emacs' Lisp modes
@@ -88,6 +96,20 @@
 (add-hook 'scheme-mode-hook 'turn-on-pretty-mode)
 (add-hook 'lisp-mode-hook 'turn-on-pretty-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-pretty-mode)
+
+(defun python-reinstate-current-directory ()
+  "When running Python, add the current directory ('') to the head of sys.path.
+   For reasons unexplained, run-python passes arguments to the interpreter that
+   explicitely remove '' from sys.path.
+   This means that, for example, using `python-send-buffer` in a buffer visiting
+   a module's code will fail to find modules in the same directory.
+   Adding this function to inferior-python-mode-hook re-instates the
+   current directory in Python's search path.."
+  (python-send-string "sys.path[0:0] = ['']"))
+(add-hook 'inferior-python-mode-hook 'python-reinstate-current-directory)
+
+;; Generic hooks
+(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 
 ;; Make tooltips appear in the echo area
 (tooltip-mode 1)
@@ -112,7 +134,6 @@
 (global-set-key [f11] 'toggle-fullscreen)
 
 ;; Add Python Documentation inside Emacs info docs
-(add-to-list 'load-path "~/.emacs.d/packages/")
 (require 'pydoc-info)
 
 ;; Auto-Complete
@@ -155,6 +176,41 @@
  ;; If there is more than one, they won't work right.
  )
 
+;; Speedbar
+(require 'sr-speedbar)
+
+(setq speedbar-frame-parameters
+      '((minibuffer)
+	(width . 40)
+	(border-width . 0)
+	(menu-bar-lines . 0)
+	(tool-bar-lines . 0)
+	(unsplittable . t)
+	(left-fringe . 0)))
+(setq speedbar-hide-button-brackets-flag t)
+(setq speedbar-show-unknown-files t)
+(setq speedbar-smart-directory-expand-flag t)
+(setq speedbar-use-images nil)
+(setq sr-speedbar-auto-refresh nil)
+(setq sr-speedbar-max-width 70)
+(setq sr-speedbar-right-side nil)
+(setq sr-speedbar-width-console 40)
+(setq sr-speedbar-right-side nil)
+ 
+(when window-system
+  (defadvice sr-speedbar-open (after sr-speedbar-open-resize-frame activate)
+    (set-frame-width (selected-frame)
+                     (+ (frame-width) sr-speedbar-width)))
+  (ad-enable-advice 'sr-speedbar-open 'after 'sr-speedbar-open-resize-frame)
+ 
+  (defadvice sr-speedbar-close (after sr-speedbar-close-resize-frame activate)
+    (sr-speedbar-recalculate-width)
+    (set-frame-width (selected-frame)
+                     (- (frame-width) sr-speedbar-width)))
+  (ad-enable-advice 'sr-speedbar-close 'after 'sr-speedbar-close-resize-frame))
+
+
+
 ;; Toggle between buffer horizontal and vertical split.
 (defun toggle-window-split ()
   (interactive)
@@ -182,3 +238,6 @@
 	  (if this-win-2nd (other-window 1))))))
 
 (define-key ctl-x-4-map "t" 'toggle-window-split)
+
+;; Hide the menu bar.
+(menu-bar-mode 0)
