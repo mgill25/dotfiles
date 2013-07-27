@@ -1,0 +1,40 @@
+[user]
+	name = Manish Gill
+	email = gill.manish90@gmail.com
+[diff]
+	tool = gvimdiff
+[alias]
+	switch = !legit switch \"$@\"
+	branches = !legit branches
+	sprout = !legit sprout \"$@\"
+	unpublish = !legit unpublish \"$@\"
+	harvest = !legit harvest \"$@\"
+	sync = !legit sync \"$@\"
+	publish = !legit publish \"$@\"
+        graft = !legit graft \"$@\"
+        d = difftool
+        lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+        lct = --no-pager log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+        co = checkout
+        rms = remote -v
+        brs = branch -a
+        stat = status
+        undo-commit = reset --soft HEAD^
+        unstage = reset HEAD
+	ctags = !.git/hooks/ctags
+[push]
+    default = matching
+[color]
+    branch = auto
+    diff = auto
+    status = auto
+[color "diff"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+[github]
+	user = mgill25
+[core]
+	excludesfile = /home/manish/.gitignore_global
+[init]
+	templatedir = ~/.git_template
