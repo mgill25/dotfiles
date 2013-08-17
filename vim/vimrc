@@ -9,7 +9,7 @@ filetype plugin on	" Provides Intelligent Auto-Indenting
 syntax on 		" Enables Syntax Highlighting	
 " set hidden 		" Hides Buffers, even when unsaved. Complaints if exit without saving.
 " Hide the toobar and menubar
-" set guioptions-=m
+set guioptions-=m
 set guioptions-=T
 set guioptions-=r
 set guioptions-=L
@@ -18,24 +18,25 @@ set guioptions-=L
 " set autowriteall
 
 " Colorscheme for the GVim 
-"set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
-if &t_Co >= 256 || has("gui_running")  " Terminal supports 256 colors?
-    set guifont=Monaco\ 13
-    "set guifont=DejaVu\ Sans\ Mono\ 10
+set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
+if has("gui_running")  " Terminal supports 256 colors?
+    "set guifont=Droid\ Sans\ Mono\ 9
+    "set guifont=Deja\ Vu\ \ Sans\ Mono\ 13
+    set guifont=Monaco\ 10
+    "set guifont=Inconsolata\ 14
+    colorscheme github 
     "set background=light
-    "colorscheme macvim
-    colorscheme ir_black
     "set background=dark 
 else
     " Temporary colorscheme for the gnome-terminal
     " colorscheme grb256 
-    colorscheme default 
+    colorscheme github 
+    " colorscheme ir_black 
     " set bg=dark 
 endif
 let g:solarized_diffmode="high"       
 "set bg=dark
 " let g:molokai_original=1
-highlight clear SignColumn
 
 " The PC is fast enough, do syntax highlight syncing from start
 autocmd BufEnter * :syntax sync fromstart
@@ -44,9 +45,9 @@ set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*$py.class,*
 "set wildmode=list:full
 set showcmd		" Show partial commands in the last line of the screen
 set hlsearch		" Highlight search.
+set incsearch
 set ignorecase 		" Ignore case when searching
 set smartcase		" Ignore case when search pattern all lowercase. Case-sensitive otherwise.
-set incsearch       " Incremental Search
 
 "Indentation Settings. Taken from the Hitchhiker's guide to Python.
 set scrolloff=5
@@ -112,12 +113,8 @@ call vundle#rc()
 Bundle 'gmarik/vundle'
 
 " My bundles
-Bundle "MarcWeber/vim-addon-mw-utils"
-Bundle "tomtom/tlib_vim"
-Bundle "honza/vim-snippets"
-Bundle "garbas/vim-snipmate"
-"
 Bundle 'ervandew/supertab'
+Bundle 'https://github.com/garbas/vim-snipmate.git'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-surround'
 Bundle 'tpope/vim-endwise'
@@ -132,11 +129,12 @@ Bundle "git://github.com/tomtom/tlib_vim.git"
 Bundle 'sjl/gundo.vim'
 Bundle 'nvie/vim-flake8'
 Bundle 'kien/ctrlp.vim'
+Bundle 'mattn/webapi-vim'
 Bundle 'mattn/gist-vim'
 Bundle 'majutsushi/tagbar'
+Bundle 'epmatsw/ag.vim'
 Bundle 'git://github.com/Bogdanp/pyrepl.vim.git'
-Bundle 'git://github.com/tacahiroy/ctrlp-funky.git'
-" Bundle 'terryma/vim-multiple-cursors.git'
+" Bundle 'git://github.com/fholgado/minibufexpl.vim.git' 
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
@@ -153,7 +151,7 @@ map <leader>o :split
 map <leader>e :vsplit
 
 "Quickly open new tabs
-" map <leader>t :tabnew<CR>
+"map <leader>t :tabnew<CR>
 
 "Easy Split-Window navigation:
 map <C-h> <C-w>h
@@ -167,12 +165,8 @@ nmap <silent> ,/ :nohlsearch<CR>
 " Reopen a file in sudo-mode by pressing w!!
 cmap w!! w !sudo tee % >/dev/null
 
-map <leader>l :CtrlPBuffer<CR>
+map <leader>f :CtrlPBuffer<CR>
 let g:ctrlp_dotfiles = 0 " Don't scan for dotfiles and dotdirs
-" Ctrlp extensions: Funky
-let g:ctrlp_extensions = ['funky']
-nnoremap <leader>fu :CtrlPFunky<CR>
-nnoremap <leader>fU :execute 'CtrlPFunky '.expand('<cword>')<CR>
 
 " Tagbar mappings
 " g:tagbar_ctags_bin
@@ -199,12 +193,16 @@ nmap <leader>3 :set guifont=DejaVu\ Sans\ Mono\ 13<CR>
 map <leader>e :PyREPLToggle<CR>
 " map <leader>l :PyREPLEvalFile<CR>   " Not really useful
 
-" Python and Ruby default evaluation, because PyREPLEvalFile sometimes fails
-map <leader>d :!ruby %<CR>
 " source $MYVIMRC reloads the saved $MYVIMRC
 :nmap <leader>s :source $MYVIMRC<CR>
 " opens $MYVIMRC for editing, or use :tabedit $MYVIMRC
 :nmap <leader>v :e $MYVIMRC<CR>
+" opens a scratch buffer -- requires scratch.vim
+nmap <leader>x :Scratch<CR>
+nmap <leader>xs :Sscratch<CR>
+
+" List directory contents of the file in current buffer
+nmap <leader>15 :!ls %:p:h<CR>
 
 " Generate python ctags
 " map <F12> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
@@ -218,7 +216,6 @@ autocmd FileType python map <buffer> <leader>8 :call Flake8()<CR>
 let g:pymode_folding = 0
 let g:pymode_doc = 0
 let g:pymode_lint_write = 0
-" let g:pymode_rope_auto_project = 0   "XXX: causes error when creating directory from within vim
 
 " Racket file settings
 if has("autocmd")
@@ -249,3 +246,6 @@ endfunction
 nnoremap <leader>g :call NumberToggle()<CR>
 "autocmd InsertEnter * :set number
 "autocmd InsertLeave * :set relativenumber
+
+" Fix for E303 bug
+" set directory=.,$TEMP
