@@ -1,12 +1,11 @@
 # Path to your oh-my-zsh configuration.
 ZSH=$HOME/.oh-my-zsh
-
+unsetopt correct_all
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
 ZSH_THEME="robbyrussell"
-#ZSH_THEME="norm"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
@@ -29,86 +28,35 @@ ZSH_THEME="robbyrussell"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git django mercurial)
+plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
 
 # Customize to your needs...
-export PATH=/home/naeblis/bin:/home/naeblis/bin/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/home/naeblis/dev/google_appengine/
-
-# virtualenvwrapper path.
-export WORKON_HOME="$HOME/dev/src/PyProjects"
-source /usr/local/bin/virtualenvwrapper.sh
-
-# Google App Engine Path
-# export PATH="$PATH:/home/naeblis/dev/google_appengine/"
-#
-### Added by the Heroku Toolbelt
-export PATH="/usr/local/heroku/bin:$PATH"
-
-# Add RVM to PATH for scripting
-PATH=$PATH:$HOME/.rvm/bin 
-
-# Custom Prompt
-export PS1="\$(~/.rvm/bin/rvm-prompt i u)$PS1"
-# ri format settings
-export RI="--format ansi --width 70"
-
-#Set the auto completion on
-autoload -U compinit
-compinit
-
-#Lets set some options
-unsetopt correctall
-setopt autocd
-setopt auto_resume
-
-## Enables the extgended globbing features
-setopt extendedglob
-
-#Set some ZSH styles
-zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
-zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
-
-HISTFILE=~/.zsh-histfile
-HISTSIZE=1000
-SAVEHIST=1000
+export PATH=/usr/lib/lightdm/lightdm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:~/dev/google_appengine/
 
 #Aliases
 #ls aliases
-alias ls='ls --color'
+alias ls='ls --color' 
 alias l='ls -lFh'     #size,show type,human readable
 alias la='ls -lAFh'   #long list,show almost all,show type,human readable
-alias lr='ls -tFh'    #sorted by date,recursive,show type,human readable
+alias lr='ls -tRFh'   #sorted by date,recursive,show type,human readable
 alias lt='ls -ltFh'   #long list,sorted by date,show type,human readable
-alias ltr='ls -ltr'
+alias ltr='ls -ltr' 
 #cd, because typing the backslash is ALOT of work!!
 alias .='cd ../'
 alias ..='cd ../../'
 alias ...='cd ../../../'
 alias ....='cd ../../../../'
-
-alias cdd='cd ~/dev'
+alias cdd='cd ~/dev/'
 alias cdp='cd ~/dev/Python/'
-alias proj='cd ~/dev/Projects/'
-# apt-get shortcuts
+# apt aliases
 alias install='sudo apt-get install'
-alias search='sudo apt-cache search'
 alias remove='sudo apt-get remove'
+alias search='sudo apt-cache search'
 alias update='sudo apt-get update'
 alias upgrade='sudo apt-get upgrade'
 alias autoremove='sudo apt-get autoremove'
-alias clean='sudo apt-get clean'
-alias audoclean='sudo apt-get autoclean'
-
-# Some Django aliases
-alias dshell='python manage.py shell --traceback'
-alias dsync='python manage.py syncdb --traceback'
-alias dserv='python manage.py runserver --traceback'
-alias dtest='python manage.py test --traceback'
-alias prmigrationinit='python manage.py schemamigration public_rest --auto'
-alias prmigrate='python manage.py migrate public_rest'
-
 ##Long list format with ll
 alias ll='ls -alF'
 ##rm, ask before deleting
@@ -119,52 +67,99 @@ alias mkdir='mkdir -p'
 alias mv='mv -i'
 
 # grep  aliases
-alias grep='grep -n --color=auto'
-alias fgrep='fgrep -n --color=auto'
-alias egrep='egrep -n --color=auto'
-# ack alias. (betterthangrep.com
-alias ack='ack --no-recurse'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 #python alias
 alias p='ipython'
-alias bp='bpython'
+alias bp='bpython' 
 alias rb='irb --simple-prompt'
 
 # SSH aliases - short cuts to ssh to a host
-# alias -g shost='ssh -p 9999 user@host.com'
-
-# Screen aliases - add a new screen , or entire session, name it, then ssh to the host
-# alias sshost='screen -t HOST shost'
-
-# Redis
+alias -g shost='ssh -p 9999 user@host.com'
+alias sshwebfaction='ssh user@user.webhost.com'
+# redis-server alias
 alias rs='redis-server'
 alias rc='redis-cli'
-# MongoDB
-alias mongod='sudo ~/Downloads/mongodb-linux-x86_64-2.2.0/bin/mongod'
-alias mongo='sudo ~/Downloads/mongodb-linux-x86_64-2.2.0/bin/mongo'
-# Postgres
-alias pg='sudo su - postgres'
-# Sublime text 2
-alias subl='~/Applications/Sublime\ Text\ 2/sublime_text'
-# Emacs inside the console. 
+# Screen aliases - add a new screen , or entire session, name it, then ssh to the host
+alias sshost='screen -t HOST shost'
+
+# Copy database from live redis 
+alias rdcopy='scp -P 20000 deploy@sc.redis.ip.address:/home/deploy/apps/sportschimp/shared/redis/appendonly.aof aa.aof'
+
+#Sublime text 2
+alias subl='~/Downloads/Sublime\ Text\ 2/sublime_text'
+#Emacs
 alias em='emacs -nw'
+alias emc='emacsclient -c -n'
 # Dropbox Deamon
 alias dp='~/.dropbox-dist/dropboxd'
-# PyPy alias
-alias pypy='/home/naeblis/dev/src/PyProjects/pypy/pypy-1.9/bin/pypy'
-# Git aliases that I want to keep separate from the plugin
-alias gap='git add -p'	# Selective Commit
-
+# Postgres
+alias startdb='sudo su - postgres'
+# Ack
+alias ack='ack-grep'
 #Case-Insensitive Tab completion
 #Fist, make extended globbing work
 #case-insensitive (all),partial-word and then substring completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
+# A few new aliases
+alias gl="git log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gap='git add -p'
+alias gcl="git --no-pager log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'''
+alias lf='ls -Gl | grep ^d' #Only list directories
+alias lsd='ls -Gal | grep ^d' #Only list directories, including hidden ones
+alias simpleserver="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
+
+# Some Django aliases
+alias dshell='python manage.py shell --traceback'
+alias dsync='python manage.py syncdb --traceback'
+alias dserv='python manage.py runserver --traceback'
+alias dtest='python manage.py test --traceback'
+alias prmigrationinit='python manage.py schemamigration public_rest --auto'
+alias prmigrate='python manage.py migrate public_rest'
+
 #This is to open gVIm in a single instance only.
 #gvim () { command gvim --remote-silent $@ || command gvim $@; }
 #alias gvim='gvim --remote-silent'
 
-# Use vim key bindings on the command line.
-bindkey -v
+#PDF Viever. Type file.pdf to open the Document viewer
+if [[ -x `which kpdf` ]]; then
+	alias -s 'pdf=kfmclient exec'
+else
+	if [[ -x `which gpdf` ]]; then
+		alias -s 'pdf=gpdf'
+	else
+		if [[ -x `which evince` ]]; then
+			alias -s 'pdf=evince'
+		fi
+	fi
+fi
+
+PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session.
+
+# .pythonrc
+export PYTHONSTARTUP="$HOME/.pythonrc"
+
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
+
+# virtualenvwrapper path.
+export WORKON_HOME="$HOME/dev"
+source /usr/local/bin/virtualenvwrapper.sh
+unsetopt correct
+
+# Some Environment Variables
+export NODE_PORT=6543
+export NODE_ENV=debug
+export REDIS_HOST=127.0.0.1
+export REDIS_PORT=6379
+
+# Debian specific
+# export LOCAL_PART='Python'
+# export LOCAL_PART_SUFFIX='Default'
 
 # Quicker file navigation (requires a .marks directory)
 # src: http://jeroenjanssens.com/2013/08/16/quickly-navigate-your-filesystem-from-the-command-line.html
