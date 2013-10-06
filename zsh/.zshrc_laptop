@@ -137,8 +137,11 @@ else
 	fi
 fi
 
+# RVM
 PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session.
+export PS1="\$(~/.rvm/bin/rvm-prompt i u)$PS1"
+# ri format settings
+export RI="--format ansi --width 70"
 
 # .pythonrc
 export PYTHONSTARTUP="$HOME/.pythonrc"
@@ -181,3 +184,7 @@ function _marks {
 }
 compctl -K _marks jump
 compctl -K _marks unmark
+
+# Important! Should be last
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session.
+# Custom Prompt
