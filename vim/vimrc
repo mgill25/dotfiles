@@ -22,17 +22,19 @@ set t_Co=256              " Explicitly tell vim that the terminal supports 256 c
 if has("gui_running")  " Terminal supports 256 colors?
     "set guifont=Droid\ Sans\ Mono\ 9
     "set guifont=Deja\ Vu\ \ Sans\ Mono\ 13
-    set guifont=Monaco\ 10
+    "set guifont=Inconsolata\ 13
+    set guifont=Monaco\ 13
     "set guifont=Inconsolata\ 14
-    colorscheme github 
+    colorscheme molokai 
+    "colorscheme solarized
     "set background=light
     "set background=dark 
 else
     " Temporary colorscheme for the gnome-terminal
-    " colorscheme grb256 
-    colorscheme github 
+    colorscheme grb256 
+    " colorscheme github 
     " colorscheme ir_black 
-    " set bg=dark 
+    set bg=dark 
 endif
 let g:solarized_diffmode="high"       
 "set bg=dark
@@ -58,9 +60,7 @@ set ttyfast
 set expandtab 
 set shiftround
 "set shiftwidth=4
-autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=80
-"autocmd FileType go set tabstop=4 softtabstop=4 shiftwidth=4
-autocmd FileType sh set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd BufNewFile,BufRead *.json setlocal ft=javascript
 let javascript_enable_domhtmlcss=1
@@ -68,8 +68,8 @@ autocmd FileType html,htmldjango set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType css set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType cpp set tabstop=8 softtabstop=8 shiftwidth=8
 autocmd FileType c set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType cpp set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType sml set tabstop=4 softtabstop=4 shiftwidth=4
-autocmd FileType lisp set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType ruby set expandtab tabstop=2 softtabstop=2 shiftwidth=2 formatoptions-=c formatoptions-=r formatoptions-=o
 au FileType make setlocal noexpandtab " Don't expand tabs into spaces when editing makefiles
 
@@ -99,7 +99,7 @@ set directory=~/.tmp " Don't clutter my dirs up with swp and tmp files
 " Automatically generate Shebang
 augroup Shebang
   autocmd BufNewFile *.py 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
-  autocmd BufNewFile *.rb 0put =\"#!/usr/bin/env ruby -w\<nl># -*- coding: utf-8 -*-\<nl>\"|$
+  autocmd BufNewFile *.rb 0put =\"#!/usr/bin/env ruby -w\<nl># encoding: UTF-8\<nl>\"|$
   autocmd BufNewFile *.sh 0put =\"#!/bin/bash\<nl>\"|$
   "autocmd BufNewFile *.tex 0put =\"%&plain\<nl>\"|$
   "autocmd BufNewFile *.\(cc\|hh\) 0put =\"//\<nl>// \".expand(\"<afile>:t\").\" -- \<nl>//\<nl>\"|2|start!
@@ -117,8 +117,6 @@ Bundle 'ervandew/supertab'
 Bundle 'https://github.com/garbas/vim-snipmate.git'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-endwise'
-Bundle 'tpope/vim-unimpaired.git'
 Bundle 'vim-ruby/vim-ruby'
 Bundle 'klen/python-mode'
 Bundle 'scrooloose/nerdtree'
@@ -134,6 +132,7 @@ Bundle 'mattn/gist-vim'
 Bundle 'majutsushi/tagbar'
 Bundle 'epmatsw/ag.vim'
 Bundle 'git://github.com/Bogdanp/pyrepl.vim.git'
+Bundle 'git://github.com/tpope/vim-endwise.git'
 " Bundle 'git://github.com/fholgado/minibufexpl.vim.git' 
 "-------------- Some Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
@@ -142,6 +141,8 @@ map <C-n> :NERDTreeToggle<CR>
 let NERDTreeIgnore=['\~$', '\.pyc$', '\.pyo$', '\.class$', 'pip-log\.txt$', '\.o$']
 let NERDTreeShowBookmarks=1 " Display the NERDTree Bookmarks table on vim startup
 
+"Dot behaves like in normal mode
+vnoremap . :norm.<CR>       
 
 " gundo
 nnoremap <Leader>u :GundoToggle<CR>
@@ -182,6 +183,8 @@ map <leader>p :set paste<CR>i<CR><CR><Esc>k:.!xclip -o<CR>JxkJx:set nopaste<CR>
 " Cycle through buffers 
 map <leader>j :bp<CR>
 map <leader>k :bn<CR>
+" map <C-J> :bp<CR>
+" map <C-K> :bn<CR>
 
 " Quickly Change Font-Size, since it's something I seem to do a lot.
 nmap <leader>1 :set guifont=Monaco\ 13<CR>
@@ -191,7 +194,7 @@ nmap <leader>3 :set guifont=DejaVu\ Sans\ Mono\ 13<CR>
 
 " PyREPL
 map <leader>e :PyREPLToggle<CR>
-" map <leader>l :PyREPLEvalFile<CR>   " Not really useful
+map <leader>l :PyREPLEvalFile<CR>
 
 " source $MYVIMRC reloads the saved $MYVIMRC
 :nmap <leader>s :source $MYVIMRC<CR>
@@ -203,6 +206,12 @@ nmap <leader>xs :Sscratch<CR>
 
 " List directory contents of the file in current buffer
 nmap <leader>15 :!ls %:p:h<CR>
+
+" Set the current directory to that of the file in buffer
+" For all windows.
+nmap <leader>16 :cd %:p:h<CR>       
+" Only for current window.
+nmap <leader>17 :lcd %:p:h<CR>
 
 " Generate python ctags
 " map <F12> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
@@ -219,7 +228,6 @@ let g:pymode_lint_write = 0
 
 " Racket file settings
 if has("autocmd")
-    au BufReadPost *.md,*.mdown set filetype=markdown
     au BufReadPost *.rkt,*.rktl set filetype=scheme
 endif
 
