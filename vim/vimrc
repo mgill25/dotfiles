@@ -17,31 +17,179 @@ set guioptions-=L
 " set confirm
 " set autowriteall
 
+" ------------------------ begin lightline config ------------------------------------- "
+function! SetupLightLine()
+        " Powerline fancy
+        let g:Powerline_symbols = 'fancy'
+
+        let g:lightline = {
+        \ 'colorscheme': 'jellybeans',
+        \ 'active': {
+        \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
+        \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+        \ },
+        \ 'component_function': {
+        \   'fugitive': 'MyFugitive',
+        \   'readonly': 'MyReadonly',
+        \   'modified': 'MyModified',
+        \   'filename': 'MyFilename',
+        \   'fileformat': 'MyFileformat',
+        \   'filetype': 'MyFiletype',
+        \   'ctrlpmark': 'CtrlPMark',
+        \   'fileencoding': 'MyFileencoding',
+        \ },
+        \ 'separator': { 'left': '⮀', 'right': '⮂' },
+        \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
+        \ }
+endfunction
+
+function! MyFileformat()
+  return winwidth(0) > 70 ? &fileformat : ''
+endfunction
+
+function! MyFiletype()
+  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
+endfunction
+
+function! MyFileencoding()
+  return winwidth(0) > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
+endfunction
+
+function! MyMode()
+  let fname = expand('%:t')
+  return fname == '__Tagbar__' ? 'Tagbar' :
+        \ fname == 'ControlP' ? 'CtrlP' :
+        \ fname == '__Gundo__' ? 'Gundo' :
+        \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
+        \ fname =~ 'NERD_tree' ? 'NERDTree' :
+        \ &ft == 'unite' ? 'Unite' :
+        \ &ft == 'vimfiler' ? 'VimFiler' :
+        \ &ft == 'vimshell' ? 'VimShell' :
+        \ winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
+
+function! CtrlPMark()
+  if expand('%:t') =~ 'ControlP'
+    call lightline#link('iR'[g:lightline.ctrlp_regex])
+    return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
+          \ , g:lightline.ctrlp_next], 0)
+  else
+    return ''
+  endif
+endfunction
+let g:ctrlp_status_func = {
+  \ 'main': 'CtrlPStatusFunc_1',
+  \ 'prog': 'CtrlPStatusFunc_2',
+  \ }
+
+function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
+  let g:lightline.ctrlp_regex = a:regex
+  let g:lightline.ctrlp_prev = a:prev
+  let g:lightline.ctrlp_item = a:item
+  let g:lightline.ctrlp_next = a:next
+  return lightline#statusline(0)
+endfunction
+
+function! CtrlPStatusFunc_2(str)
+  return lightline#statusline(0)
+endfunction
+
+let g:tagbar_status_func = 'TagbarStatusFunc'
+
+function! TagbarStatusFunc(current, sort, fname, ...) abort
+    let g:lightline.fname = a:fname
+  return lightline#statusline(0)
+endfunction
+
+augroup AutoSyntastic
+  autocmd!
+  autocmd BufWritePost *.c,*.cpp call s:syntastic()
+augroup END
+
+function! s:syntastic()
+  SyntasticCheck
+  call lightl
+endfunction
+
+function! MyModified()
+  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! MyReadonly()
+  return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? '⭤' : ''
+endfunction
+
+function! MyFugitive()
+  try
+    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
+      let mark = ''  " edit here for cool mark
+      let _ = fugitive#head()
+      return strlen(_) ? mark._ : ''
+    endif
+  catch
+  endtry
+  return ''
+endfunction
+
+function! MyFilename()
+  let fname = expand('%:t')
+  return fname == 'ControlP' ? g:lightline.ctrlp_item :
+        \ fname == '__Tagbar__' ? g:lightline.fname :
+        \ fname =~ '__Gundo\|NERD_tree' ? '' :
+        \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
+        \ &ft == 'unite' ? unite#get_status_string() :
+        \ &ft == 'vimshell' ? vimshell#get_status_string() :
+        \ ('' != MyReadonly() ? MyReadonly() . ' ' : '') .
+        \ ('' != fname ? fname : '[No Name]') .
+        \ ('' != MyModified() ? ' ' . MyModified() : '')
+endfunction
+
+" ------------------------ end lightline config ------------------------------------- "
+
 " Colorschemes
 " Some other light color schemes: blear, summerfruit256, breeze, pyte
+" Some modifications to the Zenburn colorscheme.
+" Ref: http://statico.github.io/vim.html
+function! ColorTermZenburn()
+    colorscheme zenburn
+    highlight Normal ctermbg=234
+    highlight CursorLine ctermbg=236
+    let g:zenburn_high_Contrast = 1
+endfunction
+
 set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
+
+call SetupLightLine()     " Set up lightline before setting colorscheme
+
 if has("gui_running")  " Terminal supports 256 colors?
-    colorscheme gruvbox
-    set bg=dark
     if has("mac")
-        set guifont=Monaco:h13
+        colorscheme gruvbox
+        set guifont=Monaco\ for\ Powerline:h13
+        set bg=dark
         " does not work properly on os x
         " an GUIEnter * set fullscreen
     else
-        set guifont=Monaco\ 13
+        set guifont=Monaco 13
     endif
     " Because solarized is being a bitch
-    " let g:solarized_diffmode="high"       
     " set background=dark 
+    call ColorTermZenburn()
+    
+    " Set colorscheme for diffs
+    if &diff
+      colorscheme solarized
+      set bg=light
+    endif
 else
-    colorscheme gruvbox 
-    set bg=dark 
+    " colorscheme Tomorrow-Night-Bright
+    " colorscheme solarized
+    " set bg=dark
 endif
+let g:solarized_diffmode="high"             " Solarized has a beautiful diff contrast
 
-let g:virtualenv_stl_format='[Active venv:%n]'
-set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ %{virtualenv#statusline()}\
-                        \ (%{&ff})\ %y\ %{fugitive#statusline()}\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\
-                        \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ %L\ lines " requires fugitive.
+" set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ \
+"                        \ (%{&ff})\ %y\ %{fugitive#statusline()}\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\
+"                        \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ %L\ lines " requires fugitive.
 
 " The PC is fast enough, do syntax highlight syncing from start
 autocmd BufEnter * :syntax sync fromstart
@@ -67,7 +215,11 @@ set ttyfast
 set expandtab 
 set shiftround
 "set shiftwidth=4
+
+" ------------------------------- Begin Filetype config ---------------------------------
+autocmd FileType sh colorscheme dante
 autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType python setlocal cc=80
 autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType javascript setlocal commentstring=//\ %s
 autocmd FileType javascript noremap <buffer> <leader>b :call JsBeautify()<cr>
@@ -80,8 +232,8 @@ autocmd FileType cpp set tabstop=8 softtabstop=8 shiftwidth=8
 autocmd FileType c set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType cpp set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd BufNewFile,BufRead *.go setlocal ft=go
-autocmd FileType go setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 
-" autocmd Filetype go autocmd BufWritePre <buffer> Fmt
+autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4 softtabstop=4 
+autocmd Filetype go autocmd BufWritePre <buffer> Fmt
 autocmd FileType java set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType sml set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType ruby set expandtab tabstop=2 softtabstop=2 shiftwidth=2 formatoptions-=c formatoptions-=r formatoptions-=o
@@ -102,13 +254,14 @@ autocmd FileType html,htmljinja,htmldjango imap <buffer> <c-l> <Plug>SparkupNext
 autocmd FileType html setlocal commentstring=<!--\ %s\ -->
 autocmd FileType htmljinja setlocal commentstring={#\ %s\ #}
 autocmd BufWritePre *.py :%s/\s\+$//e   " Removing Trailing Whitespace on buffer write
-autocmd BufWritePre *.go :%s/\s\+$//e   " Removing Trailing Whitespace on buffer write
+autocmd BufWritePre *.py :%s/\s\+$//e   " Removing Trailing Whitespace on buffer write
+autocmd BufWritePre *.js :%s/\s\+$//e   " Removing Trailing Whitespace on buffer write
 autocmd BufRead,BufNewFile **/templates/*.html set filetype=htmljinja
 let html_no_rendering=1
-let g:syntastic_html_checkers = []
+" let g:syntastic_html_checkers = []
 
 " Run shortcut for different file types
-au FileType python map <leader>r :!python %<CR>
+au FileType python map <leader>r :!/usr/local/bin/python %<CR>
 au FileType go map <leader>r :!go run %<CR>
 au FileType c map <leader>r :!gcc -Wall -g %; ./a.out<CR>
 au FileType cpp map <leader>r :!g++ -Wall -g %; ./a.out<CR>
@@ -126,6 +279,8 @@ au BufNewFile,BufRead *.txt setlocal lbr
 " Turn on spell-checking in markdown and text.
 " au BufRead,BufNewFile *.md,*.txt setlocal spell
 
+" ------------------------------- End Filetype config ---------------------------------
+
 set confirm		" Dialog asking if you want to save changed files.
 "set visualbell		" Use visual bell instead of beeping when doing something wrong
 " don't bell or blink
@@ -141,7 +296,7 @@ set laststatus=2		" Always show the status line
 set encoding=utf8
 set backupdir=~/.tmp
 set directory=~/.tmp " Don't clutter my dirs up with swp and tmp files
-  
+
 " Automatically generate Shebang
 augroup Shebang
   autocmd BufNewFile *.py 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
@@ -161,34 +316,37 @@ Bundle 'gmarik/vundle'
 " My bundles
 Bundle 'ervandew/supertab'
 Bundle 'Raimondi/delimitMate'
-Bundle 'garbas/vim-snipmate.git'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-endwise'
 Bundle 'vim-ruby/vim-ruby'
-Bundle 'scrooloose/nerdtree'
 Bundle 'jmartindf/vim-tcomment'
 Bundle 'edsono/vim-matchit'
 Bundle "MarcWeber/vim-addon-mw-utils.git"
 Bundle "tomtom/tlib_vim.git"
 Bundle 'sjl/gundo.vim'
-Bundle 'nvie/vim-flake8'
 Bundle 'kien/ctrlp.vim'
 Bundle 'mattn/webapi-vim'
 Bundle 'mattn/gist-vim'
 Bundle 'majutsushi/tagbar'
 Bundle 'epmatsw/ag.vim'
-Bundle 'tpope/vim-endwise.git'
 Bundle 'scrooloose/syntastic.git'
-Bundle 'jmcantrell/vim-virtualenv'
-Bundle 'kchmck/vim-coffee-script'
-Bundle 'mtth/scratch.vim'
+Bundle 'wakatime/vim-wakatime'
+Bundle "mattn/emmet-vim"
+Bundle "groenewege/vim-less"
+Bundle "scrooloose/nerdtree"
+Bundle 'SirVer/ultisnips'
+Bundle 'tpope/vim-unimpaired.git'
+Bundle 'wting/rust.vim'
+Bundle 'Shougo/unite.vim'
+Bundle 'elentok/plaintasks.vim'
+Bundle 'itchyny/lightline.vim'
 
-"-------------- Some Custom Mappings ---------------------------------
+" Snippets are separated from the engine. Add this if you want them:
+Plugin 'honza/vim-snippets'
+
+"----------------------------------- Begin Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
-
-map <C-n> :NERDTreeToggle<CR>
-let NERDTreeIgnore=['\~$', '\.pyc$', '\.pyo$', '\.class$', 'pip-log\.txt$', '\.o$']
-let NERDTreeShowBookmarks=1 " Display the NERDTree Bookmarks table on vim startup
 
 "Dot behaves like in normal mode
 vnoremap . :norm.<CR>       
@@ -197,8 +355,8 @@ vnoremap . :norm.<CR>
 nnoremap <Leader>u :GundoToggle<CR>
 
 "Shortcut for opening Split-Windows
-map <leader>o :split
-map <leader>e :vsplit
+map <leader>o :split<CR>
+map <leader>e :vsplit<CR>
 map <leader>d :bd<CR>
 
 "Quickly open new tabs
@@ -212,6 +370,12 @@ map <C-h> <C-w>h
 map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
+
+" NerdTree
+map <C-n> :NERDTreeToggle<CR>
+
+" Hide all but current split
+map <leader>h <c-w>o
 
 " Clearing the search buffer by pressing ,/ (Note - NOT the leader key)
 nmap <silent> ,/ :nohlsearch<CR>
@@ -230,23 +394,26 @@ nmap <leader>q :TagbarToggle<CR>
 " clipboard
 set clipboard=unnamed
 
+" Column
+hi ColorColumn ctermbg=lightgrey guibg=lightgrey
+
 " Cycle through buffers 
 map <leader>j :bp<CR>
 map <leader>k :bn<CR>
 
-" Quickly Change Font-Size, since it's something I seem to do a lot.
-nmap <leader>1 :set guifont=Monaco\ 13<CR>
-nmap <leader>0 :set guifont=Monaco\ 10<CR>
-nmap <leader>2 :set guifont=DejaVu\ Sans\ Mono\ 10<CR>
-nmap <leader>3 :set guifont=DejaVu\ Sans\ Mono\ 13<CR>
+" Move through tabs
+map <leader>tn :tabNext<CR>
+map <leader>tp :tabprevious<CR>
+map <leader>to :tabnew<CR>              "tab open!"
 
-" source $MYVIMRC reloads the saved $MYVIMRC
-:nmap <leader>vs :source $MYVIMRC<CR>
+" Quickly Change Font-Size, since it's something I seem to do a lot. - GVim
+" nmap <leader>1 :set guifont=Monaco\\ 13<CR>
+" nmap <leader>0 :set guifont=Monaco\\ 10<CR>
+" nmap <leader>2 :set guifont=DejaVu\\ Sans\\ Mono\\ 10<CR>
+" nmap <leader>3 :set guifont=DejaVu\\ Sans\\ Mono\\ 13<CR>
+
 " opens $MYVIMRC for editing, or use :tabedit $MYVIMRC
 :nmap <leader>v :e $MYVIMRC<CR>
-" opens a scratch buffer -- requires scratch.vim
-nmap <leader>s :ScratchInsert<CR>
-let g:scratch_top = 0
 
 " List directory contents of the file in current buffer
 nmap <leader>15 :!ls %:p:h<CR>
@@ -257,16 +424,22 @@ nmap <leader>16 :cd %:p:h<CR>
 " Only for current window.
 nmap <leader>17 :lcd %:p:h<CR>
 
+" See whitespaces
+nnoremap <leader>tab :<C-U>setlocal lcs=tab:>-,trail:-,eol:$ list! list? <CR>
+
+"----------------------------------- End Custom Mappings ---------------------------------
+
+" --------------------------------- Plugin settings and functions -----------------------
+
 " Generate python ctags
 " map <F12> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
 
-" Flake8 mapping
-autocmd FileType python map <buffer> <leader>8 :call Flake8()<CR>
-" Call Flake8 every time a Python file is written.
-" autocmd BufWritePost *.py call Flake8()           
+"Syntastic (re)inclusion guard - set to 1 to disable the plugin
+" let g:loaded_syntastic_plugin=0
+let g:syntastic_enable_highlighting=1
 
 " Python settings
-let g:syntastic_python_checkers=['flake8', 'python']
+let g:syntastic_python_checkers=['flake8']
 
 " Don't warn on
 "   E121 continuation line indentation is not a multiple of four
@@ -279,19 +452,25 @@ let g:syntastic_python_checkers=['flake8', 'python']
 "   E126 continuation line over-indented for hanging indent
 "   E721 do not compare types, use 'isinstance()'
 "   E501 line too long
-let g:syntastic_python_flake8_args='--ignore=E121,E128,E711,E301,E261,E241,E124,E126,E721,E501
-    \ --max-line-length=84'
+"   E712 comparison with 'is' ---> this is temporary
+let g:syntastic_python_flake8_args='--ignore=E111 E121 --max-line-length=80'
 
 " delimitMate
 let delimitMate_expand_cr = 2
 " let delimitMate_expand_space = 1
-" imap <C-Return> <CR><CR><C-o>k<Tab>
 " inoremap { {<CR>}<Esc>O
+"imap <C-Return> <CR><CR><C-o>k<Tab>
 
 " Javascript settings
 let javascript_enable_domhtmlcss=1
+let g:syntastic_check_on_open=1
 let g:syntastic_javascript_checkers = ['jshint'] 
-let g:syntastic_javascript_jshint_args='--config ~/.vim/extern-cfg/jshint.json'
+let g:syntastic_javascript_jshint_exec='/usr/local/bin/jshint'
+let g:syntastic_javascript_jshint_args='--config ~/.jshintrc'
+
+" Emmet mapping
+autocmd FileType html,htmldjango,css,scss,sass imap <expr> <tab> emmet#expandAbbrIntelligent("\<tab>")
+let g:use_emmet_complete_tag = 1
 
 " Racket file settings
 if has("autocmd")
@@ -310,15 +489,6 @@ function! RenameFile()
 endfunction
 map <leader>n :call RenameFile()<CR>
 
-" Absolute/Relative Line Number Toggle
-function! NumberToggle()
-    if(&relativenumber == 1)
-        set number
-    else
-        set relativenumber
-    endif
-endfunction
-
 " Delete buffer in CtrlP Mode
 let g:ctrlp_buffer_func = { 'enter': 'MyCtrlPMappings' }
 
@@ -334,9 +504,39 @@ func! s:DeleteBuffer()
     exec "norm \<F5>"
 endfunc
 
-nnoremap <leader>t :call NumberToggle()<CR>
+" UltiSnips
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+
+" Auto-reload vimrc
+augroup reload_vimrc " {
+    autocmd!
+    autocmd BufWritePost $MYVIMRC source $MYVIMRC
+augroup END " }
+
+" Make a simple "search" text object.
+vnoremap <silent> s //e<C-r>=&selection=='exclusive'?'+1':''<CR><CR>
+    \:<C-u>call histdel('search',-1)<Bar>let @/=histget('search',-1)<CR>gv
+omap s :normal vs<CR>
+
+" Text under cursor search with Ag
+nnoremap <leader>ag :Ag "\b<C-R><C-W>\b"<CR>:cw<CR>
+
+" Cursor hacks
+" Jump from one key to another in a dictionary
+nnoremap <right> va'<esc>f'
+nnoremap <left> va'o<esc>F'va'o<esc>l
+
 "autocmd InsertEnter * :set number
 "autocmd InsertLeave * :set relativenumber
+
+" Tmux status bar hack
+" autocmd VimEnter,VimLeave * silent !tmux set status
 
 " Fix for E303 bug
 " set directory=.,$TEMP

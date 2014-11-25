@@ -20,7 +20,8 @@ if version > 580
 endif
 let g:colors_name="github"
 
-hi Normal       guifg=#000000 guibg=#F8F8FF
+hi Normal       guifg=#000000 guibg=MacTextBackgroundColor 
+" guibg=#F8F8FF
 
 " {{{ Cursor
 hi Cursor		guibg=#444454 guifg=#F8F8FF
