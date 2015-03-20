@@ -1,0 +1,297 @@
+# Zshell configuration
+
+# ------- Slow stuff -----------
+# Stuff that might slow the startup time down a bit
+# 1. Sourcing the virtualenvwrapper. Has a considerable difference.
+
+# Chruby
+# source /usr/local/opt/chruby/share/chruby/chruby.sh
+# source /usr/local/opt/chruby/share/chruby/auto.sh
+
+# Source Prezto.
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+
+# ------------------------------
+
+# ======== Aliases =============
+
+# OS X Aliases
+alias mou='open -a /Applications/Mou.app'
+alias pingRouter='nohup ping -i 0.2 192.168.2.1 > /dev/null 2>&1&'
+
+#Aliases
+
+# Shell aliases
+alias rezsh='source ~/.zshrc'
+alias g="git"
+alias h="history"
+alias j="jobs"
+
+# file listing aliases
+alias l='ls -lFh'     #size,show type,human readable
+alias la='ls -lAFh'   #long list,show almost all,show type,human readable
+alias lr='ls -tRFh'   #sorted by date,recursive,show type,human readable
+alias lt='ls -ltFh'   #long list,sorted by date,show type,human readable
+alias ltr='ls -ltr' 
+alias ll='ls -alF'    #Long list format with ll
+
+# navigation aliases for cd, because typing the backslash is ALOT of work!!
+alias .='cd ../'
+alias ..='cd ../../'
+alias ...='cd ../../../'
+alias ....='cd ../../../../'
+alias cdd='cd ~/dev/'
+alias cdp='cd ~/dev/Python/'
+alias cdr='cd ~/dev/Ruby/'
+alias cdjs='cd ~/dev/Web/Javascript/'
+
+# file removal, ask before deleting
+alias rm='rm -i'
+
+# Some others for convenience
+alias mkdir='mkdir -p'
+alias mv='mv -i'
+
+# grep aliases
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# Homebrew aliases
+alias install='brew install'
+alias remove='brew uninstall'
+alias uninstall='brew uninstall'
+alias search='brew search'
+alias update='brew update'
+alias upgrade='brew upgrade'
+alias doctor='brew doctor'
+
+# Ping with 5 packets by default, not ultimate
+alias ping='ping -c 5'
+
+# Disk space in Gigabytes, not bytes
+alias df='df -h'
+alias du='du -h -c'
+alias clr='clear;echo "Currently logged in on $(tty), as $(whoami) in directory $(pwd)."'
+alias svim="sudo vim" # Run vim as super user
+
+# Python aliases
+alias pypath='python -c "import sys; print sys.path" | tr "," "\n" | grep -v "egg"'
+alias pycclean='find . -name "*.pyc" -exec rm {} \;'
+alias pdb='python -m pdb'
+# alias python='python3'
+alias p2='python2.7'
+alias py2='python2.7'
+alias p='ipython'
+alias pt='ptpython --vi'
+alias pit='ptipython --vi'
+
+# Ruby
+alias rb='irb --simple-prompt'
+
+# SSH over tmux
+sssh (){ ssh -t "$@" 'tmux attach || tmux new || screen -DR'; }
+
+# redis-server alias
+alias rs='redis-server'
+alias rc='redis-cli'
+
+# Screen aliases - add a new screen , or entire session, name it, then ssh to the host
+alias sshost='screen -t HOST shost'
+
+# Tmux Aliases
+# For creating a new session
+tnew_session(){
+    # To avoid 'unset $TMUX to force' error
+    TMUX= tmux new-session -d -s $1
+        tmux switch-client -t $1
+}
+alias tnews='tnew_session'
+alias tls='tmux list-session'
+alias tlw='tmux list-window'
+alias tsw='tmux switch -t '
+alias tlcmd='tmux list-command'
+alias tat='tmux attach -t'
+alias trs='tmux rename-session -t'
+
+# Killing
+alias tmkill='tmux kill-session -t'
+
+# ------------ Machine specific Aliases ---------------
+# IRC Logs Location
+alias irclogs='cd /Users/username/Documents/Textual\ logs'
+alias dlplogs='cd /Users/username/Documents/Textual logs/Server\ Name/Channels/'
+
+alias cfmongolive='ssh -L serverPort:localhost:mongodPort root@live.server.ip.address -N'
+alias mongodumplive='mongodump -d liveDBName -v -h localhost:serverPort'       # Won't work without cfmongolive!
+
+# Sublime text 2
+#alias subl='/Applications/Sublime\ Text\ 2.app'
+
+# Emacs
+alias emd="emacs --daemon"
+alias em="emacsclient"
+alias emc="emacsclient -c -n"
+alias emkill="emacsclient -e '(kill-emacs)'"
+
+# t
+alias t='python2.7 /Users/manish/.t/t.py --task-dir ~/.tasks --list tasks'
+# .pythonrc
+# export PYTHONSTARTUP="$HOME/.pythonrc"
+export PYTHONSTARTUP="$HOME/.pythonstartup.py"
+# export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+unset PYTHONPATH
+
+# Quickly opening the tools file
+alias tools='vim ~/dev/devnotes/tools.md'
+
+# Betty
+alias betty='/Users/manish/.source/betty/main.rb'
+
+# -----------------------------------------------------
+
+
+# Postgres
+#alias startdb='sudo su - postgres'
+alias startdb='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
+alias stopdb='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
+alias restartdb='stopdb && sleep 1 && startdb'
+alias reloaddb='pg_ctl reload -D /usr/local/var/postgres -s'
+alias statusdb='pg_ctl status -D /usr/local/var/postgres -s'
+
+# The silver searcher - ag
+alias ag0='ag --depth 0'
+
+# Case-Insensitive Tab completion
+#Fist, make extended globbing work
+#case-insensitive (all),partial-word and then substring completion
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# A few new aliases
+alias gl="git log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gap='git add -p'
+alias gcl="git --no-pager log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gs='git status'
+alias gd='git diff'
+alias gdt='git difftool'
+alias gam='git commit --amend'
+alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'''
+alias lf='ls -Gl | grep ^d' #Only list directories
+alias lsd='ls -Gal | grep ^d' #Only list directories, including hidden ones
+
+alias serve="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
+alias smtpserve="python -m smtpd -n -c DebuggingServer localhost:25"
+
+# Some Django aliases
+alias dserve='python manage.py runserver --traceback'
+alias dshell='python manage.py shell --traceback'
+alias dsync='python manage.py syncdb --traceback'
+alias dserv='python manage.py runserver --traceback'
+alias dtest='python manage.py test --traceback'
+alias prmigrationinit='python manage.py schemamigration public_rest --auto'
+alias prmigrate='python manage.py migrate public_rest'
+
+# Scren
+alias sr='screen -r'            # Re-attach
+alias sls='screen -ls'          # display screens
+
+# Use mvim in the terminal
+alias vim='mvim -v'
+
+# Cool stuff
+alias bitsound='echo "main(i){for(i=0;;i++)putchar(((i*(i>>8|i>>9)&46&i>>8))^(i&i>>13|i>>6));}" | gcc -x c - && ./a.out | play -c 2 -b 8 -e unsigned -t raw -r 28k -'
+
+
+# =============== Utilities ======================
+# Get my current global IP address
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+
+# Get my locally-set IP address
+alias localip="ipconfig getifaddr en1"
+
+# Sniff HTTP traffic
+alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
+
+# Dump all HTTP traffic
+alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
+
+# gurl ~ Compressed curl
+alias gurl="curl --compressed"
+
+# week ~ Get week number
+alias week="date +%V"
+
+# urlencode ~ URL-encode strings
+alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+
+# alias: map ~ Kickass map function
+alias map="xargs -n1"
+
+# Chrome
+alias crd='open /Applications/Google\ Chrome.app/ --args --enable-devtools-experiments'
+alias crdns='open /Applications/Google\ Chrome.app/ --args --enable-devtools-experiments --disable-web-security'
+
+# Bash utility
+alias silent='/usr/local/bin/disown_silently.sh'  # script, better than & and nohup: http://felixmilea.com/2014/12/running-bash-commands-background-properly/
+
+# VirtualBox aliases
+alias vm=VBoxManage
+alias vmstart=VBoxManage startvm                # --type headless for a headless vm
+alias vmcontrol=VBoxManage controlvm            # poweroff, pause etc
+
+# Compilers VirtualBox SSH
+alias sshcomp="ssh -p 3022 compilers@localhost"
+# ================================================
+
+# ============== Environment Variables ==============
+
+# Quicker file navigation (requires a .marks directory)
+# src: http://jeroenjanssens.com/2013/08/16/quickly-navigate-your-filesystem-from-the-command-line.html
+# Java
+export JAVA_HOME=$(/usr/libexec/java_home)
+
+# GoLang
+# export GOROOT='/usr/local/go'
+# export GOBIN='/usr/local/go/bin'
+export GOPATH='/Users/manish/dev/golang'
+
+# For Homebrew. Add /usr/local/bin before /usr/bin.
+export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/sbin:$PATH
+
+# Add GOPATH to PATH
+export PATH=$PATH:$GOPATH/bin
+
+# =============== Functions =================
+
+# Dict for az! :o
+dict() {
+    grep "$@" /usr/share/dict/words
+}
+
+# Get color in manual pages
+man() {
+    env \
+    LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+    LESS_TERMCAP_md=$(printf "\e[1;31m") \
+    LESS_TERMCAP_me=$(printf "\e[0m") \
+    LESS_TERMCAP_se=$(printf "\e[0m") \
+    LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+    LESS_TERMCAP_ue=$(printf "\e[0m") \
+    LESS_TERMCAP_us=$(printf "\e[1;32m") \
+    man "$@"
+}
+
+# Battery status in the terminal! 
+# Uses Python script batcharge.py
+# src: http://stevelosh.com/blog/2010/02/my-extravagant-zsh-prompt/
+function battery_charge {
+    #echo `$BAT_CHARGE` 2>/dev/null
+   /usr/local/bin/batcharge.py
+}
+## RPROMPT='$(battery_charge)'
+
+# Display Apple logo on shell login
+# archey -c
