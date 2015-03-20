@@ -17,135 +17,6 @@ set guioptions-=L
 " set confirm
 " set autowriteall
 
-" ------------------------ begin lightline config ------------------------------------- "
-function! SetupLightLine()
-        " Powerline fancy
-        let g:Powerline_symbols = 'fancy'
-
-        let g:lightline = {
-        \ 'colorscheme': 'jellybeans',
-        \ 'active': {
-        \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
-        \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
-        \ },
-        \ 'component_function': {
-        \   'fugitive': 'MyFugitive',
-        \   'readonly': 'MyReadonly',
-        \   'modified': 'MyModified',
-        \   'filename': 'MyFilename',
-        \   'fileformat': 'MyFileformat',
-        \   'filetype': 'MyFiletype',
-        \   'ctrlpmark': 'CtrlPMark',
-        \   'fileencoding': 'MyFileencoding',
-        \ },
-        \ 'separator': { 'left': '⮀', 'right': '⮂' },
-        \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
-        \ }
-endfunction
-
-function! MyFileformat()
-  return winwidth(0) > 70 ? &fileformat : ''
-endfunction
-
-function! MyFiletype()
-  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
-endfunction
-
-function! MyFileencoding()
-  return winwidth(0) > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
-endfunction
-
-function! MyMode()
-  let fname = expand('%:t')
-  return fname == '__Tagbar__' ? 'Tagbar' :
-        \ fname == 'ControlP' ? 'CtrlP' :
-        \ fname == '__Gundo__' ? 'Gundo' :
-        \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
-        \ fname =~ 'NERD_tree' ? 'NERDTree' :
-        \ &ft == 'unite' ? 'Unite' :
-        \ &ft == 'vimfiler' ? 'VimFiler' :
-        \ &ft == 'vimshell' ? 'VimShell' :
-        \ winwidth(0) > 60 ? lightline#mode() : ''
-endfunction
-
-function! CtrlPMark()
-  if expand('%:t') =~ 'ControlP'
-    call lightline#link('iR'[g:lightline.ctrlp_regex])
-    return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
-          \ , g:lightline.ctrlp_next], 0)
-  else
-    return ''
-  endif
-endfunction
-let g:ctrlp_status_func = {
-  \ 'main': 'CtrlPStatusFunc_1',
-  \ 'prog': 'CtrlPStatusFunc_2',
-  \ }
-
-function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
-  let g:lightline.ctrlp_regex = a:regex
-  let g:lightline.ctrlp_prev = a:prev
-  let g:lightline.ctrlp_item = a:item
-  let g:lightline.ctrlp_next = a:next
-  return lightline#statusline(0)
-endfunction
-
-function! CtrlPStatusFunc_2(str)
-  return lightline#statusline(0)
-endfunction
-
-let g:tagbar_status_func = 'TagbarStatusFunc'
-
-function! TagbarStatusFunc(current, sort, fname, ...) abort
-    let g:lightline.fname = a:fname
-  return lightline#statusline(0)
-endfunction
-
-augroup AutoSyntastic
-  autocmd!
-  autocmd BufWritePost *.c,*.cpp call s:syntastic()
-augroup END
-
-function! s:syntastic()
-  SyntasticCheck
-  call lightl
-endfunction
-
-function! MyModified()
-  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
-endfunction
-
-function! MyReadonly()
-  return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? '⭤' : ''
-endfunction
-
-function! MyFugitive()
-  try
-    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
-      let mark = ''  " edit here for cool mark
-      let _ = fugitive#head()
-      return strlen(_) ? mark._ : ''
-    endif
-  catch
-  endtry
-  return ''
-endfunction
-
-function! MyFilename()
-  let fname = expand('%:t')
-  return fname == 'ControlP' ? g:lightline.ctrlp_item :
-        \ fname == '__Tagbar__' ? g:lightline.fname :
-        \ fname =~ '__Gundo\|NERD_tree' ? '' :
-        \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
-        \ &ft == 'unite' ? unite#get_status_string() :
-        \ &ft == 'vimshell' ? vimshell#get_status_string() :
-        \ ('' != MyReadonly() ? MyReadonly() . ' ' : '') .
-        \ ('' != fname ? fname : '[No Name]') .
-        \ ('' != MyModified() ? ' ' . MyModified() : '')
-endfunction
-
-" ------------------------ end lightline config ------------------------------------- "
-
 " Colorschemes
 " Some other light color schemes: blear, summerfruit256, breeze, pyte
 " Some modifications to the Zenburn colorscheme.
@@ -159,12 +30,10 @@ endfunction
 
 set t_Co=256              " Explicitly tell vim that the terminal supports 256 colors.
 
-call SetupLightLine()     " Set up lightline before setting colorscheme
-
 if has("gui_running")  " Terminal supports 256 colors?
     if has("mac")
-        colorscheme gruvbox
-        set guifont=Monaco\ for\ Powerline:h13
+        colorscheme solarized 
+        set guifont=Monaco\ for\ Powerline:h15
         set bg=dark
         " does not work properly on os x
         " an GUIEnter * set fullscreen
@@ -173,7 +42,7 @@ if has("gui_running")  " Terminal supports 256 colors?
     endif
     " Because solarized is being a bitch
     " set background=dark 
-    call ColorTermZenburn()
+    " call ColorTermZenburn()
     
     " Set colorscheme for diffs
     if &diff
@@ -187,9 +56,9 @@ else
 endif
 let g:solarized_diffmode="high"             " Solarized has a beautiful diff contrast
 
-" set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ \
-"                        \ (%{&ff})\ %y\ %{fugitive#statusline()}\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\
-"                        \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ %L\ lines " requires fugitive.
+set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ \
+                      \ (%{&ff})\ %y\ %{fugitive#statusline()}\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\
+                      \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ %L\ lines " requires fugitive.
 
 " The PC is fast enough, do syntax highlight syncing from start
 autocmd BufEnter * :syntax sync fromstart
@@ -215,10 +84,13 @@ set ttyfast
 set expandtab 
 set shiftround
 "set shiftwidth=4
+set autochdir
 
 " ------------------------------- Begin Filetype config ---------------------------------
-autocmd FileType sh colorscheme dante
+" autocmd FileType sh colorscheme dante
 autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType modula2 set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType markdown set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType python setlocal cc=80
 autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType javascript setlocal commentstring=//\ %s
@@ -233,7 +105,7 @@ autocmd FileType c set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType cpp set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd BufNewFile,BufRead *.go setlocal ft=go
 autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4 softtabstop=4 
-autocmd Filetype go autocmd BufWritePre <buffer> Fmt
+" autocmd Filetype go autocmd BufWritePre <buffer> Fmt
 autocmd FileType java set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType sml set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType ruby set expandtab tabstop=2 softtabstop=2 shiftwidth=2 formatoptions-=c formatoptions-=r formatoptions-=o
@@ -261,7 +133,7 @@ let html_no_rendering=1
 " let g:syntastic_html_checkers = []
 
 " Run shortcut for different file types
-au FileType python map <leader>r :!/usr/local/bin/python %<CR>
+au FileType python map <leader>r :!python %<CR>
 au FileType go map <leader>r :!go run %<CR>
 au FileType c map <leader>r :!gcc -Wall -g %; ./a.out<CR>
 au FileType cpp map <leader>r :!g++ -Wall -g %; ./a.out<CR>
@@ -270,8 +142,8 @@ au FileType perl map <leader>r :!perl %<CR>
 au FileType php map <leader>r :!php %<CR>
 au FileType javascript map <leader>r :!node %<CR>
 au FileType coffee map <leader>r :!coffee %<CR>
-au FileType coffee map <leader>c :!coffee -c %<CR>
-au FileType coffee map <leader>p :!coffee -p %<CR>
+" au FileType coffee map <leader>c :!coffee -c %<CR>
+" au FileType coffee map <leader>p :!coffee -p %<CR>
 
 " When loading text files, wrap them and don't split up words.
 au BufNewFile,BufRead *.txt setlocal wrap 
@@ -306,53 +178,11 @@ augroup Shebang
   "autocmd BufNewFile *.\(cc\|hh\) 0put =\"//\<nl>// \".expand(\"<afile>:t\").\" -- \<nl>//\<nl>\"|2|start!
 augroup END
 
-" Vundle Stuff
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
-
-" Let Vundle manage Vundle (required)!
-Bundle 'gmarik/vundle'
-
-" My bundles
-Bundle 'ervandew/supertab'
-Bundle 'Raimondi/delimitMate'
-Bundle 'tpope/vim-fugitive'
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-endwise'
-Bundle 'vim-ruby/vim-ruby'
-Bundle 'jmartindf/vim-tcomment'
-Bundle 'edsono/vim-matchit'
-Bundle "MarcWeber/vim-addon-mw-utils.git"
-Bundle "tomtom/tlib_vim.git"
-Bundle 'sjl/gundo.vim'
-Bundle 'kien/ctrlp.vim'
-Bundle 'mattn/webapi-vim'
-Bundle 'mattn/gist-vim'
-Bundle 'majutsushi/tagbar'
-Bundle 'epmatsw/ag.vim'
-Bundle 'scrooloose/syntastic.git'
-Bundle 'wakatime/vim-wakatime'
-Bundle "mattn/emmet-vim"
-Bundle "groenewege/vim-less"
-Bundle "scrooloose/nerdtree"
-Bundle 'SirVer/ultisnips'
-Bundle 'tpope/vim-unimpaired.git'
-Bundle 'wting/rust.vim'
-Bundle 'Shougo/unite.vim'
-Bundle 'elentok/plaintasks.vim'
-Bundle 'itchyny/lightline.vim'
-
-" Snippets are separated from the engine. Add this if you want them:
-Plugin 'honza/vim-snippets'
-
 "----------------------------------- Begin Custom Mappings ---------------------------------
 let mapleader = ";" "Changing the default <leader> key from \ to ;
 
 "Dot behaves like in normal mode
 vnoremap . :norm.<CR>       
-
-" gundo
-nnoremap <Leader>u :GundoToggle<CR>
 
 "Shortcut for opening Split-Windows
 map <leader>o :split<CR>
@@ -371,9 +201,6 @@ map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
 
-" NerdTree
-map <C-n> :NERDTreeToggle<CR>
-
 " Hide all but current split
 map <leader>h <c-w>o
 
@@ -382,14 +209,6 @@ nmap <silent> ,/ :nohlsearch<CR>
 
 " Reopen a file in sudo-mode by pressing w!!
 cmap w!! w !sudo tee % >/dev/null
-
-" CtrlP
-map <leader>f :CtrlPBuffer<CR>
-let g:ctrlp_dotfiles = 0 " Don't scan for dotfiles and dotdirs
-let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:20'
-
-" g:tagbar_ctags_bin
-nmap <leader>q :TagbarToggle<CR>
 
 " clipboard
 set clipboard=unnamed
@@ -427,51 +246,9 @@ nmap <leader>17 :lcd %:p:h<CR>
 " See whitespaces
 nnoremap <leader>tab :<C-U>setlocal lcs=tab:>-,trail:-,eol:$ list! list? <CR>
 
+vnoremap <leader>c :!column -t<CR>
+
 "----------------------------------- End Custom Mappings ---------------------------------
-
-" --------------------------------- Plugin settings and functions -----------------------
-
-" Generate python ctags
-" map <F12> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
-
-"Syntastic (re)inclusion guard - set to 1 to disable the plugin
-" let g:loaded_syntastic_plugin=0
-let g:syntastic_enable_highlighting=1
-
-" Python settings
-let g:syntastic_python_checkers=['flake8']
-
-" Don't warn on
-"   E121 continuation line indentation is not a multiple of four
-"   E128 continuation line under-indented for visual indent
-"   E711 comparison to None should be 'if cond is not None:'
-"   E301 expected 1 blank line, found 0
-"   E261 at least two spaces before inline comment
-"   E241 multiple spaces after ':'
-"   E124 closing bracket does not match visual indentation
-"   E126 continuation line over-indented for hanging indent
-"   E721 do not compare types, use 'isinstance()'
-"   E501 line too long
-"   E712 comparison with 'is' ---> this is temporary
-let g:syntastic_python_flake8_args='--ignore=E111 E121 --max-line-length=80'
-
-" delimitMate
-let delimitMate_expand_cr = 2
-" let delimitMate_expand_space = 1
-" inoremap { {<CR>}<Esc>O
-"imap <C-Return> <CR><CR><C-o>k<Tab>
-
-" Javascript settings
-let javascript_enable_domhtmlcss=1
-let g:syntastic_check_on_open=1
-let g:syntastic_javascript_checkers = ['jshint'] 
-let g:syntastic_javascript_jshint_exec='/usr/local/bin/jshint'
-let g:syntastic_javascript_jshint_args='--config ~/.jshintrc'
-
-" Emmet mapping
-autocmd FileType html,htmldjango,css,scss,sass imap <expr> <tab> emmet#expandAbbrIntelligent("\<tab>")
-let g:use_emmet_complete_tag = 1
-
 " Racket file settings
 if has("autocmd")
     au BufReadPost *.rkt,*.rktl set filetype=scheme
@@ -488,30 +265,6 @@ function! RenameFile()
         endif
 endfunction
 map <leader>n :call RenameFile()<CR>
-
-" Delete buffer in CtrlP Mode
-let g:ctrlp_buffer_func = { 'enter': 'MyCtrlPMappings' }
-
-func! MyCtrlPMappings()
-    nnoremap <buffer> <silent> <c-@> :call <sid>DeleteBuffer()<cr>
-endfunc
-
-func! s:DeleteBuffer()
-    let line = getline('.')
-    let bufid = line =~ '\[\d\+\*No Name\]$' ? str2nr(matchstr(line, '\d\+'))
-        \ : fnamemodify(line[2:], ':p')
-    exec "bd" bufid
-    exec "norm \<F5>"
-endfunc
-
-" UltiSnips
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
 
 " Auto-reload vimrc
 augroup reload_vimrc " {
@@ -537,15 +290,55 @@ nnoremap <left> va'o<esc>F'va'o<esc>l
 
 " Tmux status bar hack
 " autocmd VimEnter,VimLeave * silent !tmux set status
-
 " Fix for E303 bug
 " set directory=.,$TEMP
 
-" Settings for GoLang
-" Some Linux distributions set filetype in /etc/vimrc.
-" Clear filetype flags before changing runtimepath to force Vim to reload them.
-filetype off
-filetype plugin indent off
-set runtimepath+=$GOROOT/misc/vim
-filetype plugin indent on
-syntax on
+
+" -------------- Plugins --------------------------------
+" This is the part that makes vim slower than I'd like :(
+
+" Maintained using vim-plug: https://github.com/junegunn/vim-plug
+
+call plug#begin('~/.vim/plugged')
+
+" Make sure to use single quotes
+Plug 'kien/ctrlp.vim'
+Plug 'JazzCore/ctrlp-cmatcher'
+Plug 'tpope/vim-fugitive'
+
+call plug#end()
+
+" ------------- Plugin auxiliary stuff ------------------
+
+" CtrlP
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
+
+map <leader>f :CtrlPBuffer<CR>
+let g:ctrlp_dotfiles = 0 " Don't scan for dotfiles and dotdirs
+let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:20'
+
+" Use The Silver Searcher for Indexing
+let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
+      \ --ignore .git
+      \ --ignore .so
+      \ --ignore .svn
+      \ --ignore .hg
+      \ --ignore .DS_Store
+      \ --ignore "**/*.pyc"
+      \ --ignore .pdf
+      \ --ignore .db
+      \ --ignore .rdb
+      \ --ignore .tgz
+      \ --ignore .bat
+      \ --ignore .cson
+      \ -g ""'
+" Use a faster matcher written in C
+let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
+let g:ctrlp_custom_ignore = {
+\ 'dir':  '\v[\/]\.(git|hg|svn|pdf|db|bat)$',
+\ 'file': '\v\.(exe|so|dll)$',
+\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
+\ }
+
+" Fugitive aliases
+nnoremap <leader>gs :Gstatus<CR>
