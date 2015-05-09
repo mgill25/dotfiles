@@ -32,8 +32,9 @@ set t_Co=256              " Explicitly tell vim that the terminal supports 256 c
 
 if has("gui_running")  " Terminal supports 256 colors?
     if has("mac")
-        colorscheme solarized 
-        set guifont=Monaco\ for\ Powerline:h15
+        colorscheme apprentice
+        " set guifont=Monaco\ for\ Powerline:h15
+        set guifont=Fira\ Mono:h14
         set bg=dark
         " does not work properly on os x
         " an GUIEnter * set fullscreen
@@ -52,7 +53,7 @@ if has("gui_running")  " Terminal supports 256 colors?
 else
     " colorscheme Tomorrow-Night-Bright
     " colorscheme solarized
-    " set bg=dark
+    set bg=dark
 endif
 let g:solarized_diffmode="high"             " Solarized has a beautiful diff contrast
 
@@ -91,7 +92,7 @@ set autochdir
 autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType modula2 set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType markdown set tabstop=4 softtabstop=4 shiftwidth=4
-autocmd FileType python setlocal cc=80
+" autocmd FileType python setlocal cc=80
 autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType javascript setlocal commentstring=//\ %s
 autocmd FileType javascript noremap <buffer> <leader>b :call JsBeautify()<cr>
@@ -145,6 +146,11 @@ au FileType coffee map <leader>r :!coffee %<CR>
 " au FileType coffee map <leader>c :!coffee -c %<CR>
 " au FileType coffee map <leader>p :!coffee -p %<CR>
 
+" Java Compile, Run, and Compile+Run respectively
+au FileType java map <leader>q :!javac %<CR>
+au FileType java map <leader>r :!java -cp %:p:h %:t:r<CR>
+au FileType java map <leader>qr :!javac %; java -cp %:p:h %:t:r<CR>
+
 " When loading text files, wrap them and don't split up words.
 au BufNewFile,BufRead *.txt setlocal wrap 
 au BufNewFile,BufRead *.txt setlocal lbr
@@ -185,9 +191,11 @@ let mapleader = ";" "Changing the default <leader> key from \ to ;
 vnoremap . :norm.<CR>       
 
 "Shortcut for opening Split-Windows
-map <leader>o :split<CR>
-map <leader>e :vsplit<CR>
+" map <leader>o :split<CR>
+" map <leader>e :vsplit<CR>
 map <leader>d :bd<CR>
+" Hide current split
+map <leader>h :hide<CR>
 
 "Quickly open new tabs
 "map <leader>t :tabnew<CR>
@@ -202,7 +210,7 @@ map <C-k> <C-w>k
 map <C-l> <C-w>l
 
 " Hide all but current split
-map <leader>h <c-w>o
+map <leader>a <c-w>o
 
 " Clearing the search buffer by pressing ,/ (Note - NOT the leader key)
 nmap <silent> ,/ :nohlsearch<CR>
@@ -304,7 +312,18 @@ call plug#begin('~/.vim/plugged')
 " Make sure to use single quotes
 Plug 'kien/ctrlp.vim'
 Plug 'JazzCore/ctrlp-cmatcher'
+Plug 'tacahiroy/ctrlp-funky'
 Plug 'tpope/vim-fugitive'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'wakatime/vim-wakatime'
+Plug 'tpope/vim-commentary'
+Plug 'fatih/vim-go'
+Plug 'airblade/vim-gitgutter'
+Plug 'Valloric/YouCompleteMe', { 'do': './install.sh' }
+Plug 'Raimondi/delimitMate'
+Plug 'rizzatti/dash.vim'
+Plug 'rking/ag.vim'
 
 call plug#end()
 
@@ -314,8 +333,10 @@ call plug#end()
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
 
 map <leader>f :CtrlPBuffer<CR>
+map <leader>m :CtrlPMRU<CR>
 let g:ctrlp_dotfiles = 0 " Don't scan for dotfiles and dotdirs
 let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:20'
+let g:ctrlp_clear_cache_on_exit = 0
 
 " Use The Silver Searcher for Indexing
 let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
@@ -330,7 +351,6 @@ let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
       \ --ignore .rdb
       \ --ignore .tgz
       \ --ignore .bat
-      \ --ignore .cson
       \ -g ""'
 " Use a faster matcher written in C
 let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
@@ -342,3 +362,63 @@ let g:ctrlp_custom_ignore = {
 
 " Fugitive aliases
 nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>gd :Gdiff<CR>
+nnoremap <leader>gl :silent! Glog -5<CR>:bot copen<CR>
+nnoremap <leader>gb :Git branch<leader>
+nnoremap <leader>go :Git checkout<leader>
+nnoremap <leader>gcc :Gcommit<CR>
+
+" Ultisnip settings
+let g:UltiSnipsSnippetDirectories=["UltiSnips", "CustomSnippets"] " have to be in the runtimepath
+
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsListSnippets="<c-tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+
+" CtrlP-Funky
+nnoremap <leader>l :CtrlPFunky<Cr>
+" narrow the list down with a word under cursor
+nnoremap <leader>lU :execute 'CtrlPFunky ' . expand('<cword>')<Cr>
+" matched chars highlight
+let g:ctrlp_funky_use_cache = 1
+let g:ctrlp_funky_matchtype = 'path'
+let g:ctrlp_funky_syntax_highlight = 1
+
+" Vim-Commentary mapping
+nnoremap <C-_> :Commentary<Cr>
+vnoremap <C-_> :Commentary<Cr>
+
+" Vim-Go
+let g:go_fmt_command = "goimports"
+let g:go_fmt_autosave = 1
+
+" YouCompleteMe
+let g:ycm_key_list_select_completion = ['\<C-TAB>', '\<Down>']
+let g:ycm_key_list_previous_completion = ['\<C-S-TAB>', '\<Up>']
+let g:ycm_autoclose_preview_window_after_completion = 1
+let g:ycm_autoclose_preview_window_after_insertion = 1
+let g:ycm_path_to_python_interpreter = "/usr/local/bin/python"
+" let g:ycm_extra_conf_vim_data = []
+""" YCM DEBUG settings
+let g:ycm_server_use_vim_stdout = 1
+" let g:ycm_server_log_level = 'debug'
+" let g:ycm_server_keep_logfiles = 1
+
+" Git-Gutter
+let g:gitgutter_realtime = 1
+let g:gitgutter_eager = 1
+
+" Dash.vim
+nmap <silent> <leader>o <Plug>DashSearch
+" nmap <silent> <leader>oo <Plug>DashGlobalSearch
+
+set shortmess+=c
+
+" Ag.vim
+nnoremap S :Ag<CR>
+nnoremap K :Ag "\b<C-R><C-W>\b"<CR>:cw<CR>
