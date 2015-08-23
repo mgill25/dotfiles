@@ -13,7 +13,17 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
+# NPM Packages
+NODE_PATH="$HOME/.npm-global-packages/lib/node_modules:$NODE_PATH"
+# Source node version manager
+source "$HOME/.nvm/nvm.sh"
+
+# Source gruvbox 256 color fix for Terminal!
+source "$HOME/.vim/scripts/gruvbox_256palette_osx.sh"
 # ------------------------------
+
+# Disable autocorrect
+unsetopt correct
 
 # ======== Aliases =============
 
@@ -23,11 +33,25 @@ alias pingRouter='nohup ping -i 0.2 192.168.2.1 > /dev/null 2>&1&'
 
 #Aliases
 
+# make sox (http://sox.sourceforge.net/) an aplay alias
+# actual utility is play or sox
+# options: 
+#       channel: -c 1 (mono) or 2 (stereo)
+#       samplerate: -r multiplied by 1000Hz
+alias aplay="play -c 1 -b 8 -e unsigned -t raw -r 8k -"
+alias bitmix='echo "main(i){for(i=0;;i++)putchar(((i*(i>>8|i>>9)&46&i>>8))^(i&i>>13|i>>6));}" | gcc -w -x c - && ./a.out | aplay'
+alias housemix='echo "main(i){for(i=0;;i++)putchar(((i*(i>>17|i>>9)&46&i>>3))^(i&i>>10|i>>100));}" | gcc -w -x c - && ./a.out | aplay'
+alias dubstep='echo "main(i){for(i=0;;i++)putchar(((i^(i>>64|i>>11)&70&i>>8))*(i&i>>12|i>>4));}" | gcc -w -x c - && ./a.out | aplay'
+
+# Fun aliases
+alias fun="fortune | cowsay"
+
 # Shell aliases
 alias rezsh='source ~/.zshrc'
 alias g="git"
 alias h="history"
 alias j="jobs"
+alias service='lunchy'  # A ruby gem, abstraction over launchctl
 
 # file listing aliases
 alias l='ls -lFh'     #size,show type,human readable
@@ -76,17 +100,61 @@ alias df='df -h'
 alias du='du -h -c'
 alias clr='clear;echo "Currently logged in on $(tty), as $(whoami) in directory $(pwd)."'
 alias svim="sudo vim" # Run vim as super user
-
+alias vi="vim"
 # Python aliases
 alias pypath='python -c "import sys; print sys.path" | tr "," "\n" | grep -v "egg"'
-alias pycclean='find . -name "*.pyc" -exec rm {} \;'
+alias pycclean='find . -name \*.pyc -type f -ls -delete'
 alias pdb='python -m pdb'
-# alias python='python3'
-alias p2='python2.7'
+alias py='python2.7'
 alias py2='python2.7'
-alias p='ipython'
+alias py3='/usr/local/bin/python3'
+alias ipy='ipython --no-banner --autocall=1'
+alias ipy2='ipython --no-banner --autocall=1'
+alias ipy3='ipython3 --no-banner --autocall=1'
 alias pt='ptpython --vi'
 alias pit='ptipython --vi'
+alias nose='nosetests'
+
+# Virtualenv related
+workon() {
+    cd ~/.virtualenvs/$1
+
+    if [ -e "bin/preactivate" ] 
+    then
+        source bin/preactivate
+    fi
+
+    source bin/activate
+
+    if [ -e "bin/postactivate" ] 
+    then
+       source bin/postactivate
+    fi
+}
+
+function nyan() {
+  echo
+    echo -en $RED'-_-_-_-_-_-_-_'
+    echo -e $NOCOLOR$BOLD',------,'$NOCOLOR
+    echo -en $YELLOW'_-_-_-_-_-_-_-'
+    echo -e $NOCOLOR$BOLD'|   /\_/\\'$NOCOLOR
+    echo -en $GREEN'-_-_-_-_-_-_-'
+    echo -e $NOCOLOR$BOLD'~|__( ^ .^)'$NOCOLOR
+    echo -en $CYAN'-_-_-_-_-_-_-'
+    echo -e $NOCOLOR$BOLD'""  ""'$NOCOLOR
+    echo
+}
+
+function enter_virtualenv() {
+    if [[ $PWD == *".virtualenvs/"* ]]; then
+        envname=$(echo $PWD | cut -d "/" -f 5)
+        echo "Activating $envname"
+        workon $envname
+        if [[ $? -eq 0 ]]; then
+            cd -    
+        fi
+    fi
+}
 
 # Ruby
 alias rb='irb --simple-prompt'
@@ -132,9 +200,21 @@ alias mongodumplive='mongodump -d liveDBName -v -h localhost:serverPort'       #
 
 # Emacs
 alias emd="emacs --daemon"
+alias emdd="emacs --daemon &>/dev/null"
 alias em="emacsclient"
+# Load bare-bones emacs, skipping init.d. Fires up very quickly!
+alias emb="emacs -nw -Q --eval \"(load-theme 'misterioso)\"" 
 alias emc="emacsclient -c -n"
+# alias emstop="em -e '(let ((last-nonmenu-event nil))(save-buffers-kill-emacs))'"
 alias emkill="emacsclient -e '(kill-emacs)'"
+
+# alias emd="/Applications/Emacs.app/Contents/MacOS/Emacs --daemon"               # Start Emacs in Daemon mode 
+# alias em="/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -nw"     # Start emacs with no window
+# alias emn="/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -c --no-wait" # Create a new client frame
+# alias emt="/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -t"           # Open current frame in terminal
+# alias emc="osascript -e 'tell application \"Emacs\" to activate';/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -nc --no-wait"
+
+alias htop="sudo htop"          # Because htop won't work properly if not sudo
 
 # t
 alias t='python2.7 /Users/manish/.t/t.py --task-dir ~/.tasks --list tasks'
@@ -175,6 +255,8 @@ alias gap='git add -p'
 alias gcl="git --no-pager log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gs='git status'
 alias gd='git diff'
+alias gdc='git diff --cached'
+alias gds='git diff --staged'
 alias gdt='git difftool'
 alias gam='git commit --amend'
 alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'''
@@ -217,6 +299,9 @@ alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
 # Dump all HTTP traffic
 alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
 
+# List all local TCP ports in use
+alias localtcp='sudo lsof -iTCP -sTCP:LISTEN -n -P'
+
 # gurl ~ Compressed curl
 alias gurl="curl --compressed"
 
@@ -238,14 +323,42 @@ alias silent='/usr/local/bin/disown_silently.sh'  # script, better than & and no
 
 # VirtualBox aliases
 alias vm=VBoxManage
-alias vmstart=VBoxManage startvm                # --type headless for a headless vm
-alias vmcontrol=VBoxManage controlvm            # poweroff, pause etc
-
+# alias vmstart="VBoxManage startvm"                # --type headless for a headless vm
+alias vmcontrol="VBoxManage controlvm"            # poweroff, pause etc
+vmstop() {
+        vm controlvm $1 poweroff
+}
+vmstart() {
+        vm startvm $1 --type headless
+}
 # Compilers VirtualBox SSH
 alias sshcomp="ssh -p 3022 compilers@localhost"
+
+# View HTTP traffic
+alias sniff="sudo ngrep -d 'en0' -t '^(GET|POST) ' 'tcp and port 80'"
+alias httpdump="sudo tcpdump -i en0 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
+
+# Gzip-enabled `curl`
+alias gurl="curl --compressed"
+
+# Recursively delete `.DS_Store` files
+alias cleanup="find . -name '*.DS_Store' -type f -ls -delete"
+
+# R-lang
+alias rlang='/usr/local/bin/r'
+
+# Functions
+whichproc() {
+        lsof -n -i4TCP:$1 | ag LISTEN
+}
 # ================================================
 
 # ============== Environment Variables ==============
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+# Heroku
+export PATH="$PATH:/usr/local/heroku/bin"
 
 # Quicker file navigation (requires a .marks directory)
 # src: http://jeroenjanssens.com/2013/08/16/quickly-navigate-your-filesystem-from-the-command-line.html
@@ -257,6 +370,29 @@ export JAVA_HOME=$(/usr/libexec/java_home)
 # export GOBIN='/usr/local/go/bin'
 export GOPATH='/Users/manish/dev/golang'
 
+function gogo {
+  echo "Setting GOPATH to $(pwd)"
+  export GOPATH=$(pwd)
+  echo "putting $GOPATH/bin to PATH"
+  export PATH=$GOPATH/bin:$PATH
+}
+
+# Function to explain a command usage. Requires web conn.
+function explain () {
+  if [ "$#" -eq 0 ]; then
+    while read  -p "Command: " cmd; do
+      curl -Gs "https://www.mankier.com/api/explain/?cols="$(tput cols) --data-urlencode "q=$cmd"
+    done
+    echo "Bye!"
+  elif [ "$#" -eq 1 ]; then
+    curl -Gs "https://www.mankier.com/api/explain/?cols="$(tput cols) --data-urlencode "q=$1"
+  else
+    echo "Usage"
+    echo "explain                  interactive mode."
+    echo "explain 'cmd -o | ...'   one quoted command to explain it."
+  fi
+}
+
 # For Homebrew. Add /usr/local/bin before /usr/bin.
 export PATH=/usr/local/bin:$PATH
 export PATH=/usr/local/sbin:$PATH
@@ -264,6 +400,14 @@ export PATH=/usr/local/sbin:$PATH
 # Add GOPATH to PATH
 export PATH=$PATH:$GOPATH/bin
 
+# Pip's --user flag installs things to ~/Library/Python/2.7. Add that bin to PATH
+export PATH=/Users/manish/Library/Python/2.7/bin:$PATH
+
+# Typesafe Activator location added to path
+export PATH=/usr/local/activator-dist-1.3.5:$PATH
+
+# npm binaries in path
+export PATH=$HOME/.npm-global-packages/bin:$PATH
 # =============== Functions =================
 
 # Dict for az! :o
@@ -295,3 +439,41 @@ function battery_charge {
 
 # Display Apple logo on shell login
 # archey -c
+
+# IRSSI functions!
+# create the pane with irssi's nicklist
+function irssi_nickpane() {
+    tmux renamew irssi                                              # name the window
+    tmux -q setw main-pane-width $(( $(tput cols) - 21))            # set the main pane width to the total width-20
+    tmux splitw -v "cat ~/.irssi/nicklistfifo"                      # create the window and begin reading the fifo
+    tmux -q selectl main-vertical                                   # assign the layout
+    tmux selectw -t irssi                                           # select window 'irssi'
+    tmux selectp -t 0                                               # select pane 0
+}
+
+# irssi wrapper
+function irssi() {
+    irssi_nickpane
+    $(which irssi)                                                  # launch irssi
+}
+
+# repair running irssi's nicklist pane
+function irssi_repair() {
+    tmux selectw -t irssi
+    tmux selectp -t 0
+    tmux killp -a                                                   # kill all panes
+    irssi_nickpane
+}
+
+# Fetch a gitignore file from gitignore.io
+function gi() { curl -s https://www.gitignore.io/api/$@ ;}
+
+export PATH="/usr/local/p/versions/python:$PATH"
+
+source /Users/manish/.iterm2_shell_integration.zsh
+
+# ---------------- Login function ----------------
+if [[ -n "$TMUX" ]]; then 
+    enter_virtualenv
+fi
+# ---------------- Login function ----------------
