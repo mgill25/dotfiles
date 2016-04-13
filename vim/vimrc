@@ -17,6 +17,9 @@ set guioptions-=L
 " set confirm
 " set autowriteall
 
+" let terminal resize scale the internal windows
+autocmd VimResized * :wincmd =
+
 " Colorschemes
 " Some other light color schemes: blear, summerfruit256, breeze, pyte
 " Some modifications to the Zenburn colorscheme.
@@ -32,12 +35,18 @@ set t_Co=256              " Explicitly tell vim that the terminal supports 256 c
 
 if has("gui_running")  " Terminal supports 256 colors?
     if has("mac")
-        colorscheme apprentice
-        " set guifont=Monaco\ for\ Powerline:h15
-        set guifont=Fira\ Mono:h14
-        set bg=dark
+        " colorscheme apprentice
+        " colorscheme seoul256
+        " colorscheme gruvbox
+        " colorscheme github
+        call ColorTermZenburn()
+        " colorscheme distinguished
+        set guifont=Monaco\ for\ Powerline:h13
+        " set guifont=Fira\ Code:h17
+        " set bg=light
         " does not work properly on os x
         " an GUIEnter * set fullscreen
+        set lines=400 columns=550                   " maximize window on startup
     else
         set guifont=Monaco 13
     endif
@@ -53,9 +62,12 @@ if has("gui_running")  " Terminal supports 256 colors?
 else
     " colorscheme Tomorrow-Night-Bright
     " colorscheme solarized
+    " colorscheme gruvbox
+    colorscheme grb256
     set bg=dark
 endif
 let g:solarized_diffmode="high"             " Solarized has a beautiful diff contrast
+
 
 set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ \
                       \ (%{&ff})\ %y\ %{fugitive#statusline()}\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\
@@ -95,7 +107,6 @@ autocmd FileType markdown set tabstop=4 softtabstop=4 shiftwidth=4
 " autocmd FileType python setlocal cc=80
 autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType javascript setlocal commentstring=//\ %s
-autocmd FileType javascript noremap <buffer> <leader>b :call JsBeautify()<cr>
 autocmd FileType javascript let b:javascript_fold = 0
 autocmd BufNewFile,BufRead *.json setlocal ft=javascript
 let javascript_enable_domhtmlcss=1
@@ -109,7 +120,7 @@ autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4 softtabstop=4
 " autocmd Filetype go autocmd BufWritePre <buffer> Fmt
 autocmd FileType java set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType sml set tabstop=4 softtabstop=4 shiftwidth=4
-autocmd FileType ruby set expandtab tabstop=2 softtabstop=2 shiftwidth=2 formatoptions-=c formatoptions-=r formatoptions-=o
+autocmd FileType ruby set expandtab tabstop=4 softtabstop=4 shiftwidth=4 formatoptions-=c formatoptions-=r formatoptions-=o
 autocmd FileType json setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType coffee setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType lua setlocal shiftwidth=2 tabstop=2 softtabstop=2
@@ -131,7 +142,6 @@ autocmd BufWritePre *.py :%s/\s\+$//e   " Removing Trailing Whitespace on buffer
 autocmd BufWritePre *.js :%s/\s\+$//e   " Removing Trailing Whitespace on buffer write
 autocmd BufRead,BufNewFile **/templates/*.html set filetype=htmljinja
 let html_no_rendering=1
-" let g:syntastic_html_checkers = []
 
 " Run shortcut for different file types
 au FileType python map <leader>r :!python %<CR>
@@ -155,7 +165,8 @@ au FileType java map <leader>qr :!javac %; java -cp %:p:h %:t:r<CR>
 au BufNewFile,BufRead *.txt setlocal wrap 
 au BufNewFile,BufRead *.txt setlocal lbr
 " Turn on spell-checking in markdown and text.
-" au BufRead,BufNewFile *.md,*.txt setlocal spell
+au Filetype gitcommit setlocal spell
+au Filetype markdown setlocal spell
 
 " ------------------------------- End Filetype config ---------------------------------
 
@@ -174,6 +185,7 @@ set laststatus=2		" Always show the status line
 set encoding=utf8
 set backupdir=~/.tmp
 set directory=~/.tmp " Don't clutter my dirs up with swp and tmp files
+" set tags=~/.ctags.d  " ctags source directory
 
 " Automatically generate Shebang
 augroup Shebang
@@ -212,6 +224,10 @@ map <C-l> <C-w>l
 " Hide all but current split
 map <leader>a <c-w>o
 
+" Resize splits more quickly.
+nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>
+nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
+
 " Clearing the search buffer by pressing ,/ (Note - NOT the leader key)
 nmap <silent> ,/ :nohlsearch<CR>
 
@@ -231,7 +247,8 @@ map <leader>k :bn<CR>
 " Move through tabs
 map <leader>tn :tabNext<CR>
 map <leader>tp :tabprevious<CR>
-map <leader>to :tabnew<CR>              "tab open!"
+map <leader>to :tabnew<CR>              
+" tab open!"
 
 " Quickly Change Font-Size, since it's something I seem to do a lot. - GVim
 " nmap <leader>1 :set guifont=Monaco\\ 13<CR>
@@ -243,18 +260,24 @@ map <leader>to :tabnew<CR>              "tab open!"
 :nmap <leader>v :e $MYVIMRC<CR>
 
 " List directory contents of the file in current buffer
-nmap <leader>15 :!ls %:p:h<CR>
+" nmap <leader>15 :!ls %:p:h<CR>
 
 " Set the current directory to that of the file in buffer
 " For all windows.
-nmap <leader>16 :cd %:p:h<CR>       
+" nmap <leader>16 :cd %:p:h<CR>       
 " Only for current window.
-nmap <leader>17 :lcd %:p:h<CR>
+" nmap <leader>17 :lcd %:p:h<CR>
 
 " See whitespaces
 nnoremap <leader>tab :<C-U>setlocal lcs=tab:>-,trail:-,eol:$ list! list? <CR>
 
 vnoremap <leader>c :!column -t<CR>
+
+" Cursor position after pressing enter immediately after curly braces/angle
+" brackets etc
+inoremap {<cr> {<cr>}<c-o><s-o>
+inoremap [<cr> [<cr>]<c-o><s-o>
+inoremap (<cr> (<cr>)<c-o><s-o>
 
 "----------------------------------- End Custom Mappings ---------------------------------
 " Racket file settings
@@ -274,6 +297,8 @@ function! RenameFile()
 endfunction
 map <leader>n :call RenameFile()<CR>
 
+nnoremap <silent><leader>u :set relativenumber!<cr>
+
 " Auto-reload vimrc
 augroup reload_vimrc " {
     autocmd!
@@ -281,6 +306,12 @@ augroup reload_vimrc " {
 augroup END " }
 
 " Make a simple "search" text object.
+" Ref: http://vim.wikia.com/wiki/Copy_or_change_search_hit
+" Usage:
+" 1. Search via /foo.
+" 2. Hit cs, replace first match, and hit <Esc>. Also see cgn.
+" 3. Hit n to find the next occurrence and press . to repeat the change.
+" 4. Similarly, ys to copy, gUs to uppercase, vs to visually select.
 vnoremap <silent> s //e<C-r>=&selection=='exclusive'?'+1':''<CR><CR>
     \:<C-u>call histdel('search',-1)<Bar>let @/=histget('search',-1)<CR>gv
 omap s :normal vs<CR>
@@ -293,6 +324,9 @@ nnoremap <leader>ag :Ag "\b<C-R><C-W>\b"<CR>:cw<CR>
 nnoremap <right> va'<esc>f'
 nnoremap <left> va'o<esc>F'va'o<esc>l
 
+" Insert line numbers over a selection.
+vnoremap <leader>ln :s/^/\=printf("%d.\t", line(".") - line("'<") + 1)<CR>
+
 "autocmd InsertEnter * :set number
 "autocmd InsertLeave * :set relativenumber
 
@@ -301,6 +335,9 @@ nnoremap <left> va'o<esc>F'va'o<esc>l
 " Fix for E303 bug
 " set directory=.,$TEMP
 
+" Move visual block
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
 
 " -------------- Plugins --------------------------------
 " This is the part that makes vim slower than I'd like :(
@@ -310,21 +347,25 @@ nnoremap <left> va'o<esc>F'va'o<esc>l
 call plug#begin('~/.vim/plugged')
 
 " Make sure to use single quotes
-Plug 'kien/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'JazzCore/ctrlp-cmatcher'
 Plug 'tacahiroy/ctrlp-funky'
 Plug 'tpope/vim-fugitive'
-Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'wakatime/vim-wakatime'
 Plug 'tpope/vim-commentary'
-Plug 'fatih/vim-go'
-Plug 'airblade/vim-gitgutter'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.sh' }
-Plug 'Raimondi/delimitMate'
-Plug 'rizzatti/dash.vim'
 Plug 'rking/ag.vim'
-
+Plug 'Lokaltog/vim-easymotion'
+Plug 'mitsuhiko/vim-jinja'
+Plug 'mattn/emmet-vim'
+Plug 'Shougo/neocomplete.vim'
+Plug 'jelera/vim-javascript-syntax'
+Plug 'pangloss/vim-javascript'
+Plug 'dhruvasagar/vim-dotoo'
+Plug 'rust-lang/rust.vim'
+Plug 'scrooloose/syntastic'
+Plug 'mxw/vim-jsx'
+Plug 'jiangmiao/auto-pairs'
 call plug#end()
 
 " ------------- Plugin auxiliary stuff ------------------
@@ -332,14 +373,16 @@ call plug#end()
 " CtrlP
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
 
-map <leader>f :CtrlPBuffer<CR>
+map <leader>b :CtrlPBuffer<CR>
 map <leader>m :CtrlPMRU<CR>
+map <leader>5 :CtrlPClearCache<CR>            " Same as pressing f5 in ctrlp
 let g:ctrlp_dotfiles = 0 " Don't scan for dotfiles and dotdirs
 let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:20'
 let g:ctrlp_clear_cache_on_exit = 0
 
 " Use The Silver Searcher for Indexing
 let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
+      \ --ignore-dir "\.*"
       \ --ignore .git
       \ --ignore .so
       \ --ignore .svn
@@ -393,32 +436,127 @@ let g:ctrlp_funky_syntax_highlight = 1
 nnoremap <C-_> :Commentary<Cr>
 vnoremap <C-_> :Commentary<Cr>
 
-" Vim-Go
-let g:go_fmt_command = "goimports"
-let g:go_fmt_autosave = 1
-
-" YouCompleteMe
-let g:ycm_key_list_select_completion = ['\<C-TAB>', '\<Down>']
-let g:ycm_key_list_previous_completion = ['\<C-S-TAB>', '\<Up>']
-let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_autoclose_preview_window_after_insertion = 1
-let g:ycm_path_to_python_interpreter = "/usr/local/bin/python"
-" let g:ycm_extra_conf_vim_data = []
-""" YCM DEBUG settings
-let g:ycm_server_use_vim_stdout = 1
-" let g:ycm_server_log_level = 'debug'
-" let g:ycm_server_keep_logfiles = 1
-
-" Git-Gutter
-let g:gitgutter_realtime = 1
-let g:gitgutter_eager = 1
-
-" Dash.vim
-nmap <silent> <leader>o <Plug>DashSearch
-" nmap <silent> <leader>oo <Plug>DashGlobalSearch
-
 set shortmess+=c
 
 " Ag.vim
 nnoremap S :Ag<CR>
 nnoremap K :Ag "\b<C-R><C-W>\b"<CR>:cw<CR>
+
+" NeoComplete
+if !has('nvim')
+  let g:acp_enableAtStartup = 0             " Disable AutoComplPop.
+  let g:neocomplete#enable_at_startup = 1
+  let g:neocomplete#enable_smart_case = 1
+  let g:neocomplete#sources#syntax#min_keyword_length = 3
+  let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
+
+  let g:neocomplete#sources#dictionary#dictionaries = {
+      \ 'default' : '',
+      \ 'vimshell' : $HOME.'/.vimshell_hist',
+      \ 'scheme' : $HOME.'/.gosh_completions'
+          \ }
+
+  if !exists('g:neocomplete#keyword_patterns')
+      let g:neocomplete#keyword_patterns = {}
+  endif
+  let g:neocomplete#keyword_patterns['default'] = '\h\w*'
+endif
+
+" Plugin key-mappings.
+inoremap <expr><C-g>     neocomplete#undo_completion()
+inoremap <expr><C-l>     neocomplete#complete_common_string()
+" inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y>  neocomplete#close_popup()
+inoremap <expr><C-e>  neocomplete#cancel_popup()
+
+" Enable omni completion.
+autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType python setlocal omnifunc=pythoncomplete#CompleteTags
+autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+
+" Enable heavy omni completion.
+if !exists('g:neocomplete#sources#omni#input_patterns')
+  let g:neocomplete#sources#omni#input_patterns = {}
+endif
+let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
+
+" Set Netrw to behave like NERDTree
+" Toggle Vexplore with Ctrl-E
+com!  -nargs=* -bar -bang -complete=dir  Lexplore  call netrw#Lexplore(<q-args>, <bang>0)
+fun! Lexplore(dir, right)
+  if exists("t:netrw_lexbufnr")
+  " close down netrw explorer window
+  let lexwinnr = bufwinnr(t:netrw_lexbufnr)
+  if lexwinnr != -1
+    let curwin = winnr()
+    exe lexwinnr."wincmd w"
+    close
+    exe curwin."wincmd w"
+  endif
+  unlet t:netrw_lexbufnr
+
+  else
+    " open netrw explorer window in the dir of current file
+    " (even on remote files)
+    let path = substitute(exists("b:netrw_curdir")? b:netrw_curdir : expand("%:p"), '^\(.*[/\\]\)[^/\\]*$','\1','e')
+    exe (a:right? "botright" : "topleft")." vertical ".((g:netrw_winsize > 0)? (g:netrw_winsize*winwidth(0))/100 : -g:netrw_winsize) . " new"
+    if a:dir != ""
+      exe "Explore ".a:dir
+    else
+      exe "Explore ".path
+    endif
+    setlocal winfixwidth
+    let t:netrw_lexbufnr = bufnr("%")
+  endif
+endfun
+
+map <silent> <C-N> :Lexplore<CR>
+
+" Hit enter in the file browser to open the selected
+" file with :vsplit to the right of the browser.
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+" absolute width of netrw window
+let g:netrw_winsize = -28
+" do not display info on the top of window
+let g:netrw_banner = 0
+" tree-view
+let g:netrw_liststyle = 3
+
+" Vim-Javascript Config
+let g:javascript_conceal_function   = "ƒ"
+let g:javascript_conceal_null       = "ø"
+
+" Emmet expand shortcut key
+
+" MinibufExplorer mappings and options
+map <Leader>q :MBEToggle<cr>
+" let g:miniBufExplVSplit = 20   " column width in chars
+" let g:miniBufExplBRSplit = 1   " Put new window below current or on the right for vertical split
+let g:miniBufExplAutoStart=1
+
+" Python-Mode
+" let g:pymode_rope_goto_definition_bind = "<C-]>"
+" let g:pymode_run_bind = "<C-leader-e>"
+" let g:pymode_doc_bind = "<C-leader-d>"
+" let g:pymode_folding = 0
+" let g:pymode_lint = 0
+" let g:pymode_lint_on_write = 0
+
+" Syntastic
+
+" let g:syntastic_html_checkers = []
+let g:syntastic_javascript_checkers = ['jshint']
+let g:syntastic_python_checkers = ['flake8']
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 2
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
