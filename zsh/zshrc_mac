@@ -1,127 +1,358 @@
-# Path to your oh-my-zsh configuration.
-ZSH=$HOME/.oh-my-zsh
-unsetopt correct_all
-# Set name of the theme to load.
-# Look in ~/.oh-my-zsh/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
-export CLICOLOR=1
-export TERM=xterm-256color
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-ZSH_THEME="robbyrussell"
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
+# Zshell configuration
 
-# Set to this to use case-sensitive completion
-# CASE_SENSITIVE="true"
+# ------- Slow stuff -----------
+# Stuff that might slow the startup time down a bit
+# 1. Sourcing the virtualenvwrapper. Has a considerable difference.
 
-# Comment this out to disable weekly auto-update checks
-# DISABLE_AUTO_UPDATE="true"
+# Chruby
+# source /usr/local/opt/chruby/share/chruby/chruby.sh
+# source /usr/local/opt/chruby/share/chruby/auto.sh
 
-# Uncomment following line if you want to disable colors in ls
-# DISABLE_LS_COLORS="true"
+# Source Prezto.
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
 
-# Uncomment following line if you want to disable autosetting terminal title.
-# DISABLE_AUTO_TITLE="true"
+# Source node version manager
+export NVM_DIR="/Users/manish/.nvm"
+source "$HOME/.nvm/nvm.sh"
+export HOMEBREW_GITHUB_API_TOKEN="50cfea545f1c5b47cb29c1fd9da23411b9774d4d"
+# NPM Packages
+NODE_PATH="$HOME/.npm-global-packages/lib/node_modules:$NODE_PATH"
+# export PATH="$HOME/.nvm/versions/node/v4.4.3/bin:$PATH"
 
-# Uncomment following line if you want red dots to be displayed while waiting for completion
-# COMPLETION_WAITING_DOTS="true"
+# Load node version if specified in a .nvmrc file in a project
+# Place this after nvm initialization!
+# autoload -U add-zsh-hook
+# load-nvmrc() {
+#   if [[ -f .nvmrc && -r .nvmrc ]]; then
+#     nvm use
+#   elif [[ $(nvm version) != $(nvm version default)  ]]; then
+#     echo "Reverting to nvm default version"
+#     nvm use default
+#   fi
+# }
+# add-zsh-hook chpwd load-nvmrc
+# load-nvmrc
 
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git)
+# Source gruvbox 256 color fix for Terminal!
+source "$HOME/.vim/scripts/gruvbox_256palette_osx.sh"
+# Source Z, better cd for jumping around.
+source "/usr/local/etc/profile.d/z.sh"
 
-source $ZSH/oh-my-zsh.sh
+# ------------------------------
 
+# autoenv - directory based environment variables
+source /usr/local/opt/autoenv/activate.sh
 
-#Set the auto completion on
-autoload -U compinit
-compinit
+# Source a file which contains all the secret or specific environment variables
+# that I do not want to pollute this namespace - things such as IP addresses,
+# secret keys etc.
 
-setopt autocd
-setopt auto_resume
+# Disable autocorrect
+unsetopt correct
 
-## Enables the extgended globbing features
-setopt extendedglob
+# SSH_ENV=$HOME/.ssh/environment
+# start the ssh-agent
+# function start_agent {
+#     echo "Initializing new SSH agent..."
+#     # spawn ssh-agent
+#     /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+#     echo succeeded
+#     chmod 600 "${SSH_ENV}"
+#     . "${SSH_ENV}" > /dev/null
+#     /usr/bin/ssh-add
+# }
+  
+# if [ -f "${SSH_ENV}" ]; then
+#      . "${SSH_ENV}" > /dev/null
+# 	 ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+# 	    start_agent;
+# 	}
+# else
+#     start_agent;
+# fi
 
-#Set some ZSH styles
-zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
-zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
+# Ref: http://unix.stackexchange.com/a/217223
+if [ ! -S ~/.ssh/ssh_auth_sock ]; then
+  eval `ssh-agent`
+  ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
+fi
+export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+ssh-add -l | grep "The agent has no identities" && ssh-add
 
-HISTFILE=~/.zsh_history
-HISTSIZE=1000
-SAVEHIST=1000
+# ======== Aliases =============
+# Project aliases
+alias localbot="token=xoxb-37704472912-nZVwPdya8lz6SV6k9SkTAZFq node slack_bot.js"
+alias localapi="curl http://localhost:8010/activity?limit=3 | json_pp"
+alias liveapi="curl http://104.131.180.204/activity?limit=3 | json_pp"
+alias sequelize="node_modules/sequelize-cli/bin/sequelize"
+# Sudo
+alias fuck='sudo !!'
+
+# OS X Aliases
+alias mou='open -a /Applications/Mou.app'
+alias pingRouter='nohup ping -i 0.2 192.168.2.1 > /dev/null 2>&1&'
 
 #Aliases
-#ls aliases
+
+# make sox (http://sox.sourceforge.net/) an aplay alias
+# actual utility is play or sox
+# options: 
+#       channel: -c 1 (mono) or 2 (stereo)
+#       samplerate: -r multiplied by 1000Hz
+alias aplay="play -c 1 -b 8 -e unsigned -t raw -r 8k -"
+alias bitmix='echo "main(i){for(i=0;;i++)putchar(((i*(i>>8|i>>9)&46&i>>8))^(i&i>>13|i>>6));}" | gcc -w -x c - && ./a.out | aplay'
+alias housemix='echo "main(i){for(i=0;;i++)putchar(((i*(i>>17|i>>9)&46&i>>3))^(i&i>>10|i>>100));}" | gcc -w -x c - && ./a.out | aplay'
+alias dubstep='echo "main(i){for(i=0;;i++)putchar(((i^(i>>64|i>>11)&70&i>>8))*(i&i>>12|i>>4));}" | gcc -w -x c - && ./a.out | aplay'
+
+# Fun aliases
+alias fun="fortune | cowsay"
+alias weather='curl http://wttr.in/Delhi'
+alias moon='curl http://wttr.in/Moon'
+# Shell aliases
+alias rezsh='source ~/.zshrc'
+alias g="git"
+alias h="history"
+alias j="jobs"
+alias service='lunchy'  # A ruby gem, abstraction over launchctl
+alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
+# file listing aliases
 alias l='ls -lFh'     #size,show type,human readable
 alias la='ls -lAFh'   #long list,show almost all,show type,human readable
 alias lr='ls -tRFh'   #sorted by date,recursive,show type,human readable
 alias lt='ls -ltFh'   #long list,sorted by date,show type,human readable
 alias ltr='ls -ltr' 
+alias ll='ls -alF'    #Long list format with ll
 
-#cd, because typing the backslash is ALOT of work!!
+# navigation aliases for cd, because typing the backslash is ALOT of work!!
 alias .='cd ../'
 alias ..='cd ../../'
 alias ...='cd ../../../'
 alias ....='cd ../../../../'
 alias cdd='cd ~/dev/'
 alias cdp='cd ~/dev/Python/'
+alias cdr='cd ~/dev/Ruby/'
+alias cdjs='cd ~/dev/Web/Javascript/'
 
-# apt aliases
+# file removal, ask before deleting
+alias rm='rm -i'
+
+# Some others for convenience
+alias mkdir='mkdir -p'
+alias mv='mv -i'
+
+# grep aliases
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# Homebrew aliases
 alias install='brew install'
 alias remove='brew uninstall'
 alias uninstall='brew uninstall'
 alias search='brew search'
 alias update='brew update'
 alias upgrade='brew upgrade'
+alias doctor='brew doctor'
 
-##Long list format with ll
-alias ll='ls -alF'
-##rm, ask before deleting
-alias rm='rm -i'
+# Ping with 5 packets by default, not ultimate
+alias ping='ping -c 5'
 
-#Some others for convenience
-alias mkdir='mkdir -p'
-alias mv='mv -i'
+# Disk space in Gigabytes, not bytes
+alias df='df -h'
+alias du='du -h -c'
+alias clr='clear;echo "Currently logged in on $(tty), as $(whoami) in directory $(pwd)."'
+alias svim="sudo vim" # Run vim as super user
+alias vi="vim"
+# Python aliases
+alias pypath='python -c "import sys; print sys.path" | tr "," "\n" | grep -v "egg"'
+alias pycclean='find . -name \*.pyc -type f -ls -delete'
+alias pdb='python -m pdb'
+alias py='python2.7'
+alias py2='python2.7'
+alias py3='/usr/local/bin/python3'
+alias python='python3'
+alias ipy='ipython --no-banner --autocall=1'
+alias ipy2='ipython --no-banner --autocall=1'
+alias ipy3='ipython3 --no-banner --autocall=1'
+alias notebook='cd /Users/manish/dev/Python/iPython; jupyter notebook --notebook-dir=/Users/manish/dev/Python/iPython'
+alias pt='ptpython --vi'
+alias pit='ptipython --vi'
+alias nose='nosetests'
 
-# grep  aliases
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
-#python alias
-alias p='ipython'
+# Node-Inspector
+alias node-inspector='node-inspector --web-port=8010'
+
+# Virtualenv related
+workon() {
+    cd ~/.virtualenvs/$1
+
+    if [ -e "bin/preactivate" ] 
+    then
+        source bin/preactivate
+    fi
+
+    source bin/activate
+
+    if [ -e "bin/postactivate" ] 
+    then
+       source bin/postactivate
+    fi
+}
+
+# Automatically attach to a tmux session on connecting ssh
+function ssht () {
+    /usr/bin/ssh -t $@ "tmux attach || tmux new";
+}
+
+function nyan() {
+  echo
+    echo -en $RED'-_-_-_-_-_-_-_'
+    echo -e $NOCOLOR$BOLD',------,'$NOCOLOR
+    echo -en $YELLOW'_-_-_-_-_-_-_-'
+    echo -e $NOCOLOR$BOLD'|   /\_/\\'$NOCOLOR
+    echo -en $GREEN'-_-_-_-_-_-_-'
+    echo -e $NOCOLOR$BOLD'~|__( ^ .^)'$NOCOLOR
+    echo -en $CYAN'-_-_-_-_-_-_-'
+    echo -e $NOCOLOR$BOLD'""  ""'$NOCOLOR
+    echo
+}
+
+function enter_virtualenv() {
+    if [[ $PWD == *".virtualenvs/"* ]]; then
+        envname=$(echo $PWD | cut -d "/" -f 5)
+        # echo "Activating $envname"
+        workon $envname
+        if [[ $? -eq 0 ]]; then
+            cd -    
+        fi
+    fi
+}
+
+# Ruby
 alias rb='irb --simple-prompt'
 
-# SSH aliases - short cuts to ssh to a host
-alias -g shost='ssh -p 9999 user@host.com'
+# SSH over tmux
+sssh (){ ssh -t "$@" 'tmux attach || tmux new || screen -DR'; }
+
 # redis-server alias
 alias rs='redis-server'
 alias rc='redis-cli'
-# Screen aliases - add a new screen , or entire session, name it, then ssh to the host
-alias sshost='screen -t HOST shost'
-
 # Copy database from live redis 
 alias rdcopy='scp -P 20000 deploy@sc.redis.ip.address:/home/deploy/apps/sportschimp/shared/redis/appendonly.aof aa.aof'
 
-#Sublime text 2
+# Screen aliases - add a new screen , or entire session, name it, then ssh to the host
+alias sshost='screen -t HOST shost'
+# mdrop ssh tunnel to create a VPN on port 12345
+alias vpn='ssh -D 12345 naeblis@95.85.26.243 -p 4000'
+
+# Tmux Aliases
+# For creating a new session
+tnew_session(){
+    # To avoid 'unset $TMUX to force' error
+    TMUX= tmux new-session -d -s $1
+        tmux switch-client -t $1
+}
+alias tnews='tnew_session'
+alias tls='tmux list-session'
+alias tlw='tmux list-window'
+alias tsw='tmux switch -t '
+alias tlcmd='tmux list-command'
+alias tat='tmux attach -t'
+alias trs='tmux rename-session -t'
+
+# Killing
+alias tmkill='tmux kill-session -t'
+
+# ------------ Machine specific Aliases ---------------
+# IRC Logs Location
+alias irclogs='cd /Users/manish/Documents/Textual\ logs'
+alias dlplogs='cd /Users/manish/Documents/Textual\ logs/Textual\ New\ Logs/MDrop\ -\ DLPNet\ (0E83A)/Channels/'
+alias indlogs='cd /Users/manish/Documents/Textual\ logs/Textual\ New\ Logs/MDrop\ -\ DLPNet\ (0E83A)/Channels/\#Indians'
+# SSH aliases - short cuts to ssh to a host
+alias -g shost='ssh -p 9999 user@host.com'
+# alias sshwebfaction='ssh mgill25@mgill25.webfactional.com'
+# alias sshprod='ssh manish@web307.webfaction.com'
+alias sshadi='ssh -p 20000 me@192.241.177.56'
+alias sshmdroproot='ssh -p 4000 root@95.85.26.243'
+alias sshmdrop='ssh -p 4000 naeblis@95.85.26.243'
+alias sshdev='ssh root@dev.convflow.com'
+alias sshlive='ssh live -t "tmux attach -t shared"'
+alias cfmongolive='ssh -L 27055:localhost:27017 root@176.58.96.125 -N'
+alias mongodumplive='mongodump -d convflow -v -h localhost:27055'               # Won't work without cfmongolive!
+alias sshsocksbg='ssh -fND 12345 naeblis@95.85.26.243 -p 4000'                  # Run a SOCKS proxy via ssh in the background
+alias sshsocksnav='ssh -fND 12345 manish@104.131.180.204'                  # Run a SOCKS proxy via ssh in the background
+alias sshsockskq='ssh -fND 12345 nae@misc.krzaq.cc'
+
+# Poor man's VPN using sshuttle!
+alias sshuttlemdrop='sshuttle --dns -r naeblis@95.85.26.243:4000 0.0.0.0/0 -v'
+alias sshuttlenav='sshuttle --dns -r manish@104.131.180.204 0.0.0.0/0 -v'
+alias sshuttlekq='sshuttle --dns -r nae@misc.krzaq.cc 0.0.0.0/0 -v'
+
+# Seedbox download from wget
+source "/Users/manish/.zsh_secrets"
+function seedget() {
+        wget --continue --user $seedbox_user --password $seedbox_pass $1
+}
+
+# Sublime text 2
 #alias subl='/Applications/Sublime\ Text\ 2.app'
 
-#Emacs
-alias em='emacs -nw'
-alias emc='emacsclient -c -n'
+# Emacs
+alias emd="emacs --daemon"
+alias emdd="emacs --daemon &>/dev/null"
+alias em="emacsclient"
+# Load bare-bones emacs, skipping init.d. Fires up very quickly!
+alias emb="emacs -nw -Q --eval \"(load-theme 'misterioso)\"" 
+alias emc="emacsclient -c -n"
+# alias emstop="em -e '(let ((last-nonmenu-event nil))(save-buffers-kill-emacs))'"
+alias emkill="emacsclient -e '(kill-emacs)'"
+alias emcompile="emacs -batch -f batch-byte-compile ~/.emacs.d/**/*.el"
+alias emacsw='open -a emacs' # open emacs windowed directly. This works nicely with cmd+q
+
+# alias emd="/Applications/Emacs.app/Contents/MacOS/Emacs --daemon"               # Start Emacs in Daemon mode 
+# alias em="/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -nw"     # Start emacs with no window
+# alias emn="/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -c --no-wait" # Create a new client frame
+# alias emt="/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -t"           # Open current frame in terminal
+# alias emc="osascript -e 'tell application \"Emacs\" to activate';/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -nc --no-wait"
+
+alias top='sudo top'
+alias htop="sudo htop"          # Because htop won't work properly if not sudo
+
+# t
+alias t='python2.7 /Users/manish/.t/t.py --task-dir ~/.tasks --list tasks'
+# .pythonrc
+# export PYTHONSTARTUP="$HOME/.pythonrc"
+export PYTHONSTARTUP="$HOME/.pythonstartup.py"
+# export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+unset PYTHONPATH
+
+# Quickly opening the tools file
+alias tools='vim ~/dev/devnotes/tools.md'
+
+# Betty
+alias betty='/Users/manish/.source/betty/main.rb'
+
+# Colorize stuff using generic colourizer!
+alias traceroute='grc traceroute'
+alias netstat='grc netstat'
+alias psaux='grc ps aux'
+# -----------------------------------------------------
+
 
 # Postgres
 #alias startdb='sudo su - postgres'
 alias startdb='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
 alias stopdb='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
+alias restartdb='stopdb && sleep 1 && startdb'
+alias reloaddb='pg_ctl reload -D /usr/local/var/postgres -s'
+alias statusdb='pg_ctl status -D /usr/local/var/postgres -s'
 
-# Ack
-alias ack='ack-grep'
-#Case-Insensitive Tab completion
+# The silver searcher - ag
+alias ag0='ag --depth 0'
+
+# Case-Insensitive Tab completion
 #Fist, make extended globbing work
 #case-insensitive (all),partial-word and then substring completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
@@ -130,12 +361,21 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:
 alias gl="git log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gap='git add -p'
 alias gcl="git --no-pager log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gs='git status'
+alias gd='git diff'
+alias gdc='git diff --cached'
+alias gds='git diff --staged'
+alias gdt='git difftool'
+alias gam='git commit --amend'
 alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'''
 alias lf='ls -Gl | grep ^d' #Only list directories
 alias lsd='ls -Gal | grep ^d' #Only list directories, including hidden ones
-alias simpleserver="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
+
+alias serve="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
+alias smtpserve="python -m smtpd -n -c DebuggingServer localhost:25"
 
 # Some Django aliases
+alias dserve='python manage.py runserver --traceback'
 alias dshell='python manage.py shell --traceback'
 alias dsync='python manage.py syncdb --traceback'
 alias dserv='python manage.py runserver --traceback'
@@ -143,19 +383,171 @@ alias dtest='python manage.py test --traceback'
 alias prmigrationinit='python manage.py schemamigration public_rest --auto'
 alias prmigrate='python manage.py migrate public_rest'
 
-# .pythonrc
-export PYTHONSTARTUP="$HOME/.pythonrc"
+# Celery
+alias celerydak='celery -A daakiya.celery worker -l info'
 
-# virtualenvwrapper path.
-source /usr/local/bin/virtualenvwrapper.sh
-unsetopt correct
+# Scren
+alias sr='screen -r'            # Re-attach
+alias sls='screen -ls'          # display screens
+
+# Use mvim in the terminal
+alias vi='mvim -v'
+alias vim='nvim'        # Using NeoVim!
+alias bvim='nvim -u ~/.vim/basic.vim'  # Open vim only with sane defaults and no plugins!
+alias bmvim='mvim -u ~/.vim/basic.vim'  
+alias vimr='/Applications/VimR.app/Contents/Resources/vimr'
+
+# Cool stuff
+alias bitsound='echo "main(i){for(i=0;;i++)putchar(((i*(i>>8|i>>9)&46&i>>8))^(i&i>>13|i>>6));}" | gcc -x c - && ./a.out | play -c 2 -b 8 -e unsigned -t raw -r 28k -'
+
+# Node.js related aliases
+alias newnode="nvm use --delete-prefix stable"
+alias defaultnode="nvm use default"
+
+# =============== Utilities ======================
+# Get my current global IP address
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+
+# Get my locally-set IP address
+alias localip="ipconfig getifaddr en0"
+
+# Sniff HTTP traffic
+alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
+
+# Dump all HTTP traffic
+alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
+
+# List all local TCP ports in use
+alias localtcp='sudo lsof -iTCP -sTCP:LISTEN -n -P'
+
+# gurl ~ Compressed curl
+alias gurl="curl --compressed"
+
+# week ~ Get week number
+alias week="date +%V"
+
+# urlencode ~ URL-encode strings
+alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+
+# alias: map ~ Kickass map function
+alias map="xargs -n1"
+
+# Chrome
+alias crd='open /Applications/Google\ Chrome.app/ --args --enable-devtools-experiments'
+alias crdns='open /Applications/Google\ Chrome.app/ --args --enable-devtools-experiments --disable-web-security'
+
+# Bash utility
+alias silent='/usr/local/bin/disown_silently.sh'  # script, better than & and nohup: http://felixmilea.com/2014/12/running-bash-commands-background-properly/
+
+# VirtualBox aliases
+alias vm=VBoxManage
+# alias vmstart="VBoxManage startvm"                # --type headless for a headless vm
+alias vmcontrol="VBoxManage controlvm"            # poweroff, pause etc
+
+# Remaining battery charge
+alias battery="pmset -g batt | egrep "([0-9]+\%).*" -o --colour=auto | cut -f1 -d';'"
+
+vmstop() {
+        vm controlvm $1 poweroff
+}
+vmstart() {
+        vm startvm $1 --type headless
+}
+# Compilers VirtualBox SSH
+alias sshcomp="ssh -p 3022 compilers@localhost"
+
+# View HTTP traffic
+alias sniff="sudo ngrep -d 'en0' -t '^(GET|POST) ' 'tcp and port 80'"
+alias httpdump="sudo tcpdump -i en0 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
+alias wirelessdumpall="sudo tcpdump -Ii en0"  # All wireless traffic hitting the 802.11 WiFi Interface. Both Packet data and Radio data.
+
+# Gzip-enabled `curl`
+alias gurl="curl --compressed"
+
+# Recursively delete `.DS_Store` files
+alias cleanup="find . -name '*.DS_Store' -type f -ls -delete"
+
+# R-lang
+alias rlang='/usr/local/bin/r'
+
+# Functions
+whichproc() {
+        lsof -n -i4TCP:$1 | ag LISTEN
+}
+# ================================================
+
+# ============== Environment Variables ==============
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export HOMEBREW_NO_ANALYTICS=1
+# Heroku
+export PATH="$PATH:/usr/local/heroku/bin"
 
 # Quicker file navigation (requires a .marks directory)
 # src: http://jeroenjanssens.com/2013/08/16/quickly-navigate-your-filesystem-from-the-command-line.html
 # Java
 export JAVA_HOME=$(/usr/libexec/java_home)
-# RVM
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+
+# GoLang
+# export GOROOT='/usr/local/go'
+# export GOBIN='/usr/local/go/bin'
+export GOPATH='/Users/manish/dev/golang'
+
+function gogo {
+  echo "Setting GOPATH to $(pwd)"
+  export GOPATH=$(pwd)
+  echo "putting $GOPATH/bin to PATH"
+  export PATH=$GOPATH/bin:$PATH
+}
+
+# Function to explain a command usage. Requires web conn.
+function explain () {
+  if [ "$#" -eq 0 ]; then
+    while read  -p "Command: " cmd; do
+      curl -Gs "https://www.mankier.com/api/explain/?cols="$(tput cols) --data-urlencode "q=$cmd"
+    done
+    echo "Bye!"
+  elif [ "$#" -eq 1 ]; then
+    curl -Gs "https://www.mankier.com/api/explain/?cols="$(tput cols) --data-urlencode "q=$1"
+  else
+    echo "Usage"
+    echo "explain                  interactive mode."
+    echo "explain 'cmd -o | ...'   one quoted command to explain it."
+  fi
+}
+
+# For Homebrew. Add /usr/local/bin before /usr/bin.
+export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/sbin:$PATH
+
+# Add GOPATH to PATH
+export PATH=$PATH:$GOPATH/bin
+
+# Pip's --user flag installs things to ~/Library/Python/2.7. Add that bin to PATH
+export PATH=/Users/manish/Library/Python/2.7/bin:$PATH
+
+# Typesafe Activator location added to path
+export PATH=/usr/local/activator-dist-1.3.5:$PATH
+
+# npm binaries in path
+export PATH=$HOME/.npm-global-packages/bin:$PATH
+# =============== Functions =================
+
+# Dict for az! :o
+dict() {
+    grep "$@" /usr/share/dict/words
+}
+
+
+## Colored less
+export LESS=-R
+export LESS_TERMCAP_me=$(printf '\e[0m')
+export LESS_TERMCAP_se=$(printf '\e[0m')
+export LESS_TERMCAP_ue=$(printf '\e[0m')
+export LESS_TERMCAP_mb=$(printf '\e[1;32m')
+export LESS_TERMCAP_md=$(printf '\e[1;34m')
+export LESS_TERMCAP_us=$(printf '\e[1;32m')
+export LESS_TERMCAP_so=$(printf '\e[1;44;1m')
 
 # Get color in manual pages
 man() {
@@ -169,3 +561,188 @@ man() {
     LESS_TERMCAP_us=$(printf "\e[1;32m") \
     man "$@"
 }
+
+# Battery status in the terminal! 
+# Uses Python script batcharge.py
+# src: http://stevelosh.com/blog/2010/02/my-extravagant-zsh-prompt/
+function battery_charge {
+    #echo `$BAT_CHARGE` 2>/dev/null
+   /usr/local/bin/batcharge.py
+}
+## RPROMPT='$(battery_charge)'
+
+# Display Apple logo on shell login
+# archey -c
+
+# IRSSI functions!
+# create the pane with irssi's nicklist
+function irssi_nickpane() {
+    tmux renamew irssi                                              # name the window
+    tmux -q setw main-pane-width $(( $(tput cols) - 21))            # set the main pane width to the total width-20
+    tmux splitw -v "cat ~/.irssi/nicklistfifo"                      # create the window and begin reading the fifo
+    tmux -q selectl main-vertical                                   # assign the layout
+    tmux selectw -t irssi                                           # select window 'irssi'
+    tmux selectp -t 0                                               # select pane 0
+}
+
+# irssi wrapper
+function irssi() {
+    irssi_nickpane
+    $(which irssi)                                                  # launch irssi
+}
+
+# repair running irssi's nicklist pane
+function irssi_repair() {
+    tmux selectw -t irssi
+    tmux selectp -t 0
+    tmux killp -a                                                   # kill all panes
+    irssi_nickpane
+}
+
+# Create a new directory and enter it
+function md() {
+	mkdir -p "$@" && cd "$@"
+}
+
+# find shorthand
+function f() {
+    find . -name "$1" 2>&1 | grep -v 'Permission denied'
+}
+
+# cd into whatever is the forefront Finder window.
+cdf() {  # short for cdfinder
+  cd "`osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)'`"
+}
+
+# whois a domain or a URL
+function whois() {
+	local domain=$(echo "$1" | awk -F/ '{print $3}') # get domain from URL
+	if [ -z $domain ] ; then
+		domain=$1
+	fi
+	echo "Getting whois record for: $domain …"
+
+	# avoid recursion
+	# this is the best whois server
+        # strip extra fluff
+	/usr/bin/whois -h whois.internic.net $domain | sed '/NOTICE:/q'
+}
+
+# get gzipped size
+function gz() {
+	echo "orig size    (bytes): "
+	cat "$1" | wc -c
+	echo "gzipped size (bytes): "
+	gzip -c "$1" | wc -c
+}
+
+# Copy w/ progress
+cp_p () {
+  rsync -WavP --human-readable --progress $1 $2
+}
+
+# Start an HTTP server from a directory, optionally specifying the port
+function server() {
+	local port="${1:-8000}"
+	open "http://localhost:${port}/"
+	# Set the default Content-Type to `text/plain` instead of `application/octet-stream`
+	# And serve everything as UTF-8 (although not technically correct, this doesn’t break anything for binary files)
+	python -c $'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
+}
+
+# Extract archives - use: extract <file>
+# Based on http://dotfiles.org/~pseup/.bashrc
+function extract() {
+	if [ -f "$1" ] ; then
+		local filename=$(basename "$1")
+		local foldername="${filename%%.*}"
+		local fullpath=`perl -e 'use Cwd "abs_path";print abs_path(shift)' "$1"`
+		local didfolderexist=false
+		if [ -d "$foldername" ]; then
+			didfolderexist=true
+			read -p "$foldername already exists, do you want to overwrite it? (y/n) " -n 1
+			echo
+			if [[ $REPLY =~ ^[Nn]$ ]]; then
+				return
+			fi
+		fi
+		mkdir -p "$foldername" && cd "$foldername"
+		case $1 in
+			*.tar.bz2) tar xjf "$fullpath" ;;
+			*.tar.gz) tar xzf "$fullpath" ;;
+			*.tar.xz) tar Jxvf "$fullpath" ;;
+			*.tar.Z) tar xzf "$fullpath" ;;
+			*.tar) tar xf "$fullpath" ;;
+			*.taz) tar xzf "$fullpath" ;;
+			*.tb2) tar xjf "$fullpath" ;;
+			*.tbz) tar xjf "$fullpath" ;;
+			*.tbz2) tar xjf "$fullpath" ;;
+			*.tgz) tar xzf "$fullpath" ;;
+			*.txz) tar Jxvf "$fullpath" ;;
+			*.zip) unzip "$fullpath" ;;
+			*) echo "'$1' cannot be extracted via extract()" && cd .. && ! $didfolderexist && rm -r "$foldername" ;;
+		esac
+	else
+		echo "'$1' is not a valid file"
+	fi
+}
+
+# who is using the laptop's iSight camera?
+camerausedby() {
+    echo "Checking to see who is using the iSight camera… 📷"
+    usedby=$(lsof | grep -w "AppleCamera\|USBVDC\|iSight" | awk '{printf $2"\n"}' | xargs ps)
+    echo -e "Recent camera uses:\n$usedby"
+}
+
+# animated gifs from any video
+# from alex sexton   gist.github.com/SlexAxton/4989674
+gifify() {
+  if [[ -n "$1" ]]; then
+    if [[ $2 == '--good' ]]; then
+      ffmpeg -i $1 -r 10 -vcodec png out-static-%05d.png
+      time convert -verbose +dither -layers Optimize -resize 900x900\> out-static*.png  GIF:- | gifsicle --colors 128 --delay=5 --loop --optimize=3 --multifile - > $1.gif
+      rm out-static*.png
+    else
+      ffmpeg -i $1 -s 600x400 -pix_fmt rgb24 -r 10 -f gif - | gifsicle --optimize=3 --delay=3 > $1.gif
+    fi
+  else
+    echo "proper usage: gifify <input_movie.mov>. You DO need to include extension."
+  fi
+}
+
+# turn that video into webm.
+# brew reinstall ffmpeg --with-libvpx
+webmify(){
+	ffmpeg -i $1 -vcodec libvpx -acodec libvorbis -isync -copyts -aq 80 -threads 3 -qmax 30 -y $2 $1.webm
+}
+
+# `shellswitch bash`
+# `shellswitch zsh`
+shellswitch () {
+	chsh -s $(brew --prefix)/bin/$1
+}
+
+# visual studio code. a la `subl`
+code () {
+    if [[ $# = 0 ]]
+    then
+        open -a "Visual Studio Code"
+    else
+        [[ $1 = /* ]] && F="$1" || F="$PWD/${1#./}"
+        open -a "Visual Studio Code" --args "$F"
+    fi
+}
+
+# Fetch a gitignore file from gitignore.io
+function gi() { curl -s https://www.gitignore.io/api/$@ ;}
+
+export PATH="/usr/local/p/versions/python:$PATH"
+
+source /Users/manish/.iterm2_shell_integration.zsh
+
+# ---------------- Login function ----------------
+if [[ -n "$TMUX" ]]; then 
+    enter_virtualenv
+fi
+source "/usr/local/etc/grc.bashrc"
+# ---------------- Login function ----------------
