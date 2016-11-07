@@ -1,13 +1,14 @@
-set nu
 " Set 'nocompatible' to ward off unexpected things that your distro might
 " have made, as well as sanely reset options when re-sourcing .vimrc
-set nocompatible
+" set nocompatible
+set nu
 set backspace=indent,eol,start
+set shell=/bin/bash
 
 filetype indent plugin on " Detect file type by format or content
-filetype plugin on	" Provides Intelligent Auto-Indenting
-syntax on 		" Enables Syntax Highlighting	
-" set hidden 		" Hides Buffers, even when unsaved. Complaints if exit without saving.
+filetype plugin on    " Provides Intelligent Auto-Indenting
+syntax on         " Enables Syntax Highlighting    
+" set hidden         " Hides Buffers, even when unsaved. Complaints if exit without saving.
 " Hide the toobar and menubar
 set guioptions-=m
 set guioptions-=T
@@ -61,8 +62,9 @@ else
     " colorscheme Tomorrow-Night-Bright
     " colorscheme solarized
     " colorscheme gruvbox
-    colorscheme grb256
-    set bg=dark
+    " colorscheme grb256
+    colorscheme github
+    " set bg=dark
 endif
 let g:solarized_diffmode="high"             " Solarized has a beautiful diff contrast
 
@@ -73,14 +75,14 @@ let g:solarized_diffmode="high"             " Solarized has a beautiful diff con
 
 " The PC is fast enough, do syntax highlight syncing from start
 autocmd BufEnter * :syntax sync fromstart
-set wildmenu		" Better Command-Line completion
+set wildmenu        " Better Command-Line completion
 set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*$py.class,*.class,*.zip,*.sw[op]
 "set wildmode=list:full
-set showcmd		" Show partial commands in the last line of the screen
-set hlsearch		" Highlight search.
+set showcmd        " Show partial commands in the last line of the screen
+set hlsearch        " Highlight search.
 set incsearch
-set ignorecase 		" Ignore case when searching
-set smartcase		" Ignore case when search pattern all lowercase. Case-sensitive otherwise.
+set ignorecase         " Ignore case when searching
+set smartcase        " Ignore case when search pattern all lowercase. Case-sensitive otherwise.
 
 " Open new split panes to right and bottom, which feels more natural
 set splitbelow
@@ -163,24 +165,27 @@ au FileType java map <leader>qr :!javac %; java -cp %:p:h %:t:r<CR>
 au BufNewFile,BufRead *.txt setlocal wrap 
 au BufNewFile,BufRead *.txt setlocal lbr
 " Turn on spell-checking in markdown and text.
-au Filetype gitcommit setlocal spell
+" au Filetype gitcommit setlocal spell
 au Filetype markdown setlocal spell
 
 " ------------------------------- End Filetype config ---------------------------------
 
-set confirm		" Dialog asking if you want to save changed files.
-"set visualbell		" Use visual bell instead of beeping when doing something wrong
+set confirm        " Dialog asking if you want to save changed files.
+"set visualbell        " Use visual bell instead of beeping when doing something wrong
 " don't bell or blink
 set noerrorbells
 set vb t_vb=
-set mouse=a 		" Enable use of the mouse for all modes
+set mouse=a         " Enable use of the mouse for all modes
 set mousemodel=popup
-set pastetoggle=<F2>	" Temporarily disables auto indenting and other stuff. Use right before pasting large amount of code.
+set pastetoggle=<F2>    " Temporarily disables auto indenting and other stuff. Use right before pasting large amount of code.
 " This will stop vim from applying it's own indenting features on the paste.
 
 set showcmd
-set laststatus=2		" Always show the status line
-set encoding=utf-8
+set laststatus=2        " Always show the status line
+if !has('nvim')
+    " Original vim specific things that nvim breaks
+    set encoding=utf-8
+endif
 set backupdir=~/.tmp
 set directory=~/.tmp " Don't clutter my dirs up with swp and tmp files
 " set tags=~/.ctags.d  " ctags source directory
@@ -214,11 +219,10 @@ map <leader>h :hide<CR>
 map <leader>sp :tab sp<CR>
 
 "Easy Split-Window navigation:
-map <C-h> <C-w>h
-map <C-j> <C-w>j
-map <C-k> <C-w>k
-map <C-l> <C-w>l
-
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
 " Hide all but current split
 map <leader>a <c-w>o
 
@@ -347,17 +351,15 @@ call plug#begin('~/.vim/plugged')
 " Make sure to use single quotes
 Plug 'rking/ag.vim'
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'JazzCore/ctrlp-cmatcher'
+Plug 'burke/matcher'
 Plug 'tacahiroy/ctrlp-funky'
 Plug 'tpope/vim-fugitive'
 Plug 'honza/vim-snippets'
-Plug 'wakatime/vim-wakatime'
 Plug 'tpope/vim-commentary'
 Plug 'rking/ag.vim'
 Plug 'Lokaltog/vim-easymotion'
 Plug 'mitsuhiko/vim-jinja'
 Plug 'mattn/emmet-vim'
-Plug 'Shougo/neocomplete.vim'
 Plug 'jelera/vim-javascript-syntax'
 Plug 'pangloss/vim-javascript'
 Plug 'dhruvasagar/vim-dotoo'
@@ -367,6 +369,10 @@ Plug 'mxw/vim-jsx'
 Plug 'jiangmiao/auto-pairs'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'majutsushi/tagbar'
+Plug 'https://github.com/Shutnik/jshint2.vim'
+Plug 'xolox/vim-lua-ftplugin'
+Plug 'xolox/vim-misc'
 call plug#end()
 
 " ------------- Plugin auxiliary stuff ------------------
@@ -388,6 +394,9 @@ let g:ctrlp_dotfiles = 0 " Don't scan for dotfiles and dotdirs
 let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:20'
 let g:ag_prg="/usr/local/bin/ag --vimgrep"
 
+" Tagbar
+nnoremap <leader>q :TagbarToggle<CR>
+
 if executable('ag')
   " Use ag over grep
   set grepprg=ag\ --nogroup\ --nocolor
@@ -403,9 +412,28 @@ endif
 
 let g:ctrlp_clear_cache_on_exit = 0
 
-
-" Use a faster matcher written in C
-let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
+" Use a better fuzzy matcher for CtrlP
+if executable('matcher')
+    let g:ctrlp_match_func = { 'match': 'GoodMatch' }
+    function! GoodMatch(items, str, limit, mmode, ispath, crfile, regex)
+      " Create a cache file if not yet exists
+      let cachefile = ctrlp#utils#cachedir().'/matcher.cache'
+      if !( filereadable(cachefile) && a:items == readfile(cachefile) )
+        call writefile(a:items, cachefile)
+      endif
+      if !filereadable(cachefile)
+        return []
+      endif
+      " a:mmode is currently ignored. In the future, we should probably do
+      " something about that. the matcher behaves like "full-line".
+      let cmd = 'matcher --limit '.a:limit.' --manifest '.cachefile.' '
+      if !( exists('g:ctrlp_dotfiles') && g:ctrlp_dotfiles )
+        let cmd = cmd.'--no-dotfiles '
+      endif
+      let cmd = cmd.a:str
+      return split(system(cmd), "\n")
+    endfunction
+endif
 
 " bind K to grep word under cursor
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
@@ -417,6 +445,10 @@ nnoremap <leader>gl :silent! Glog -5<CR>:bot copen<CR>
 nnoremap <leader>gb :Git branch<leader>
 nnoremap <leader>go :Git checkout<leader>
 nnoremap <leader>gcc :Gcommit<CR>
+
+" Lua 
+let g:lua_compiler_name = '/usr/local/bin/luac'
+" let g:lua_complete_omni = 1
 
 " Ultisnip settings
 let g:UltiSnipsSnippetDirectories=["UltiSnips", "CustomSnippets"] " have to be in the runtimepath
@@ -443,8 +475,6 @@ let g:ctrlp_funky_syntax_highlight = 1
 nnoremap <C-_> :Commentary<Cr>
 vnoremap <C-_> :Commentary<Cr>
 
-set shortmess+=c
-
 " Ag.vim
 nnoremap S :Ag<CR>
 nnoremap K :Ag "\b<C-R><C-W>\b"<CR>:cw<CR>
@@ -470,12 +500,12 @@ if !has('nvim')
 endif
 
 " Plugin key-mappings.
-inoremap <expr><C-g>     neocomplete#undo_completion()
-inoremap <expr><C-l>     neocomplete#complete_common_string()
+" inoremap <expr><C-g>     neocomplete#undo_completion()
+" inoremap <expr><C-l>     neocomplete#complete_common_string()
 " inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><C-y>  neocomplete#close_popup()
-inoremap <expr><C-e>  neocomplete#cancel_popup()
+" inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+" inoremap <expr><C-y>  neocomplete#close_popup()
+" inoremap <expr><C-e>  neocomplete#cancel_popup()
 
 " Enable omni completion.
 autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
@@ -539,12 +569,6 @@ let g:javascript_conceal_null       = "ø"
 
 " Emmet expand shortcut key
 
-" MinibufExplorer mappings and options
-map <Leader>q :MBEToggle<cr>
-" let g:miniBufExplVSplit = 20   " column width in chars
-" let g:miniBufExplBRSplit = 1   " Put new window below current or on the right for vertical split
-let g:miniBufExplAutoStart=1
-
 " Python-Mode
 " let g:pymode_rope_goto_definition_bind = "<C-]>"
 " let g:pymode_run_bind = "<C-leader-e>"
@@ -567,3 +591,4 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 2
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+
