@@ -1,0 +1,145 @@
+# Manish's zshrc 5.0
+export LC_ALL=en_US
+
+# Set up PATH
+export PATH=$PATH:/usr/local/bin/:$HOME/.cargo/bin
+export PATH=$PATH:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin
+export PATH=$PATH:/Users/manishgill/go/bin
+export PATH=$PATH:/Users/manishgill/.nix-profile/bin
+export PATH=$PATH:/usr/local/Cellar/apache-maven-3.6.2/bin
+export LFTP_PASSWORD=''
+
+# Java
+export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
+
+# Zfuncs
+fpath+=~/.zfunc
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/usr/local/share/google-cloud-sdk/path.zsh.inc' ]; then 
+        . '/usr/local/share/google-cloud-sdk/path.zsh.inc'; 
+fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/usr/local/share/google-cloud-sdk/completion.zsh.inc' ]; then 
+        . '/usr/local/share/google-cloud-sdk/completion.zsh.inc'; 
+fi
+
+eval "$(fasd --init auto)"
+# eval "$(fasd --init posix-alias zsh-hook)"
+
+# Fasd
+fasd_cache="$HOME/.fasd-init-bash"
+if [ "$(command -v fasd)" -nt "$fasd_cache" -o ! -s "$fasd_cache" ]; then
+  fasd --init posix-alias bash-hook bash-ccomp bash-ccomp-install >| "$fasd_cache"
+fi
+source "$fasd_cache"
+unset fasd_cache
+
+# ------- Slow stuff -----------
+# Stuff that might slow the startup time down a bit
+# Source Prezto.
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+source /Users/manishgill/.nix-profile/etc/profile.d/nix.sh
+
+# zsh auto-suggestions (like Fish shell) 
+setopt noautomenu
+setopt nomenucomplete
+source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+unsetopt correct
+# Functions
+## Colored less
+export LESS=-R
+export LESS_TERMCAP_me=$(printf '\e[0m')
+export LESS_TERMCAP_se=$(printf '\e[0m')
+export LESS_TERMCAP_ue=$(printf '\e[0m')
+export LESS_TERMCAP_mb=$(printf '\e[1;32m')
+export LESS_TERMCAP_md=$(printf '\e[1;34m')
+export LESS_TERMCAP_us=$(printf '\e[1;32m')
+export LESS_TERMCAP_so=$(printf '\e[1;44;1m')
+
+# Get color in manual pages
+function man() {
+    env \
+    LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+    LESS_TERMCAP_md=$(printf "\e[1;31m") \
+    LESS_TERMCAP_me=$(printf "\e[0m") \
+    LESS_TERMCAP_se=$(printf "\e[0m") \
+    LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+    LESS_TERMCAP_ue=$(printf "\e[0m") \
+    LESS_TERMCAP_us=$(printf "\e[1;32m") \
+    man "$@"
+}
+
+# Aliases
+alias .='cd ..'
+alias ..='cd ../..'
+alias ...='cd ../../..'
+alias ....='cd ../../../..'
+alias /='cd /'
+alias ~='cd ~'
+
+alias vim='nvim'
+alias vi='nvim -u NORC'
+alias mpvbox='mpv --http-header-fields="Authorization: Basic <password-goes-here>"'
+alias pstream='mpvbox'
+alias gap='git add -p'
+
+# src: pagedout.institute edition 1
+alias cp="rsync -ah --inplace --progress"
+
+# because I'm too used to typing mvim
+alias mvim='vimr'
+
+# git
+alias gap='git add -p'
+# git rebase upstream
+alias gru='git fetch upstream && git rebase upstream/master'
+
+# colorful cat
+alias cat='bat --style=plain'
+
+# kubernetes aliases
+alias kube='kubectl'
+alias k='kubectl'
+alias pods='kubectl get pods'
+alias rpods='kubectl get pods | grep -i running'
+alias klogs='kubectl logs'
+
+# docker-compose. Because who the hell wants to type that?
+alias dc='docker-compose'
+
+# rust aliases
+alias batcheck="cargo check 2>&1 | bat --color=always"
+
+# lftp aliases
+alias lftpbird="lftp -p <port> -u username sftp://<ip-goes-here>:/home/username"
+
+
+# FZF
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+
+# SDL2
+export LIBRARY_PATH="$LIBRARY_PATH:/usr/local/lib"
+if [ /usr/local/share/google-cloud-sdk/bin/kubectl ]; then source <(kubectl completion zsh); fi
+
+# --httptoolkit--
+# This section will be reset each time a HTTP Toolkit terminal is opened
+if [ -n "$HTTP_TOOLKIT_ACTIVE" ]; then
+    # When HTTP Toolkit is active, we inject various overrides into PATH
+    export PATH="/private/var/folders/sv/_sd2fw5d2dj795_s8_m_8hr80000gn/T/AppTranslocation/F300846A-07D4-4A67-8FDF-174913E979FB/d/HTTP Toolkit.app/Contents/Resources/app/httptoolkit-server/overrides/path:$PATH"
+
+    if command -v winpty >/dev/null 2>&1; then
+        # Work around for winpty's hijacking of certain commands
+        alias php=php
+        alias node=node
+    fi
+fi
+# --httptoolkit-end--
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
