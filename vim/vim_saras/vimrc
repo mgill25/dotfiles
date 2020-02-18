@@ -1,0 +1,142 @@
+set number
+syntax on
+set backspace=indent,eol,start
+set shell=/usr/local/bin/zsh
+
+set visualbell t_vb=    " turn off error beep/flash
+set novisualbell        " turn off visual bell
+
+set noerrorbells visualbell t_vb=
+autocmd GUIEnter * set visualbell t_vb=
+
+filetype indent plugin on
+filetype plugin on
+syntax on
+set hidden
+
+set lazyredraw
+set regexpengine=1
+
+set history=100
+set showmatch
+set clipboard=unnamedplus
+
+" The PC is fast enough, do syntax highlight syncing from start
+autocmd BufEnter * :syntax sync fromstart
+set wildmenu        " Better Command-Line completion
+set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*$py.class,*.class,*.zip,*.sw[op]
+"set wildmode=list:full
+set showcmd        " Show partial commands in the last line of the screen
+set hlsearch       " Highlight search.
+set incsearch
+set ignorecase         " Ignore case when searching
+set smartcase        " Ignore case when search pattern all lowercase. Case-sensitive otherwise.
+
+"Indentation Settings. Taken from the Hitchhiker's guide to Python.
+set scrolloff=5
+set title
+set ttyfast
+"set tabstop=4
+"set softtabstop=4
+set expandtab
+set shiftround
+"set shiftwidth=4
+set autochdir
+
+autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
+autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4 softtabstop=4
+autocmd FileType java set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType yaml set tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType json setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType lua setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType rust setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4
+autocmd BufWritePre *.py :%s/\s\+$//e   " Removing Trailing Whitespace on buffer write
+autocmd! bufwritepost ~/.vimrc source %   " Automatically reload if this file changes
+
+if !has('nvim')
+    " Original vim specific things that nvim breaks
+    set encoding=utf-8
+endif
+
+set backupdir=~/.tmp
+set directory=~/.tmp " Don't clutter my dirs up with swp and tmp files
+
+let mapleader = ";" "Changing the default <leader> key from \ to ;
+nmap <silent> ,/ :nohlsearch<CR>
+
+nnoremap <leader>v :e ~/.vimrc<CR>
+
+" plugins
+" Specify a directory for plugins
+" - For Neovim: ~/.local/share/nvim/plugged
+" - Avoid using standard Vim directory names like 'plugin'
+" call plug#begin('~/.vim/plugged')
+call plug#begin('~/.local/share/nvim/plugged')
+Plug 'flazz/vim-colorschemes'
+Plug '/usr/local/opt/fzf'
+Plug 'junegunn/fzf.vim'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
+Plug 'cespare/vim-toml'
+Plug 'racer-rust/vim-racer'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+call plug#end()                         " Initialize plugin system
+
+" set colorscheme
+" colorscheme solarized8_dark_flat
+" colorscheme gruvbox
+" set bg=light
+" colorscheme 256-grayvim
+colorscheme Tomorrow
+
+" FZF Settings
+" This is the default extra key bindings
+" let g:fzf_action = {
+"  \ 'ctrl-t': 'tab split',
+"  \ 'ctrl-x': 'split',
+"  \ 'ctrl-v': 'vsplit' 
+"}
+
+" Default fzf layout
+" - down / up / left / right
+let g:fzf_layout = { 'down': '~40%' }
+
+" In Neovim, you can set up fzf window using a Vim command
+" let g:fzf_layout = { 'window': 'enew' }
+" let g:fzf_layout = { 'window': '-tabnew' }
+" let g:fzf_layout = { 'window': '10new' }
+let g:fzf_prefer_tmux = 1 
+
+" Customize fzf colors to match your color scheme
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
+" Enable per-command history.
+" CTRL-N and CTRL-P will be automatically bound to next-history and
+" previous-history instead of down and up. If you don't like the change,
+" explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
+let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+" Fuzzy finder shortcuts (with some fugitive shortcuts mixed in)
+nnoremap <C-p> :Files<CR>
+nnoremap <C-g> :GFiles<CR>
+nnoremap <leader>b :Buffers<CR>
+nnoremap <leader>c :Colors<CR>
+nnoremap <leader>s :Ag
+nnoremap <leader>gs :Gstatus<CR>
+
+" Rust stuff
+let g:racer_cmd = "/Users/manishgill/.cargo/bin/racer"
