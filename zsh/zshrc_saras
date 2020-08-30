@@ -1,13 +1,31 @@
 # Manish's zshrc 5.0
-export LC_ALL=en_US
+export LC_ALL="en_US.UTF-8"
+
+export CLICOLOR=1
+export LSCOLORS=ExFxCxDxBxegedabagacad
+export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx
+
+# gcloud interactive
+alias gbi='gcloud beta interactive'
 
 # Set up PATH
-export PATH=$PATH:/usr/local/bin/:$HOME/.cargo/bin
 export PATH=$PATH:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin
 export PATH=$PATH:/Users/manishgill/go/bin
 export PATH=$PATH:/Users/manishgill/.nix-profile/bin
 export PATH=$PATH:/usr/local/Cellar/apache-maven-3.6.2/bin
+export PATH=$PATH:/usr/local/smlnj/bin
+#export PATH=$PATH:/Users/manishgill/Library/Python/3.7/bin
+export PATH=$PATH:/Users/manishgill/Study/ApacheSpark/spark-3.0.0-preview2-bin-hadoop2.7/bin
+export PATH=$PATH:/usr/local/stuff/git-fuzzy/bin
+export PATH=$PATH:/usr/local/Cellar/jupyterlab/2.0.1/libexec/bin
+export PATH=/usr/local/bin:$PATH
+export PATH=$HOME/.cargo/bin:$PATH
+
 export LFTP_PASSWORD=''
+export BAT_THEME='OneHalfLight'
+
+# Spark
+export SPARK_HOME='/Users/manishgill/Study/ApacheSpark/spark-3.0.0-preview2-bin-hadoop2.7'
 
 # Java
 export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
@@ -17,12 +35,12 @@ fpath+=~/.zfunc
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/usr/local/share/google-cloud-sdk/path.zsh.inc' ]; then 
-        . '/usr/local/share/google-cloud-sdk/path.zsh.inc'; 
+        source '/usr/local/share/google-cloud-sdk/path.zsh.inc'; 
 fi
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/usr/local/share/google-cloud-sdk/completion.zsh.inc' ]; then 
-        . '/usr/local/share/google-cloud-sdk/completion.zsh.inc'; 
+        source '/usr/local/share/google-cloud-sdk/completion.zsh.inc'; 
 fi
 
 eval "$(fasd --init auto)"
@@ -40,9 +58,13 @@ unset fasd_cache
 # Stuff that might slow the startup time down a bit
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+        source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+        autoload -Uz promptinit
+        promptinit
+        prompt pure
 fi
-source /Users/manishgill/.nix-profile/etc/profile.d/nix.sh
+# eval "$(starship init zsh)"
+#source /Users/manishgill/.nix-profile/etc/profile.d/nix.sh
 
 # zsh auto-suggestions (like Fish shell) 
 setopt noautomenu
@@ -75,6 +97,10 @@ function man() {
 }
 
 # Aliases
+
+# Forget python 2.x
+alias python='/usr/local/bin/python3'
+
 alias .='cd ..'
 alias ..='cd ../..'
 alias ...='cd ../../..'
@@ -82,22 +108,24 @@ alias ....='cd ../../../..'
 alias /='cd /'
 alias ~='cd ~'
 
-alias vim='nvim'
-alias vi='nvim -u NORC'
-alias mpvbox='mpv --http-header-fields="Authorization: Basic <password-goes-here>"'
+alias mpvbox='mpv --http-header-fields="Authorization: Basic bmFlYmxpczp2Mj5ZSEM1akIlOSwoJTQ2W2BGaCJcdHhwMjEhIyl2YzpJbEk="'
 alias pstream='mpvbox'
-alias gap='git add -p'
 
 # src: pagedout.institute edition 1
 alias cp="rsync -ah --inplace --progress"
+alias fc="fc -e vim"
 
 # because I'm too used to typing mvim
 alias mvim='vimr'
+alias vim='vimr'
+export EDITOR="/usr/local/bin/nvim"
+alias vi='/usr/local/bin/nvim'
 
 # git
 alias gap='git add -p'
 # git rebase upstream
 alias gru='git fetch upstream && git rebase upstream/master'
+alias ss='git status'
 
 # colorful cat
 alias cat='bat --style=plain'
@@ -116,12 +144,91 @@ alias dc='docker-compose'
 alias batcheck="cargo check 2>&1 | bat --color=always"
 
 # lftp aliases
-alias lftpbird="lftp -p <port> -u username sftp://<ip-goes-here>:/home/username"
+alias lftpbird="lftp -p 9234 -u naeblis sftp://138.201.192.246:/home/naeblis"
 
+# coreutils
+alias timeout="gtimeout"
+
+# typora
+alias typora='open -a "Typora"'
+
+# parquet-tools
+alias pq='/usr/local/bin/parquet-tools'
+
+# PySpark
+export PYSPARK_PYTHON='/usr/bin/python3'
+alias ipyspark='PYSPARK_DRIVER_PYTHON=ipython pyspark'
+alias notebookspark='PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS=notebook pyspark'
+# export PYSPARK_DRIVER_PYTHON=jupyter
+# export PYSPARK_DRIVER_PYTHON_OPTS=notebook
+
+# grc colored
+# ggrc because grc is git rebase --continue from some plugin somewhere that I'm
+# too lazy to find
+alias ggrc='/usr/local/Cellar/grc/1.11.3_1/bin/grc'
+alias ls='ggrc ls'
+
+# Pastebin
+pastebin() { curl -F 'f:1=<-' ix.io; }
+
+export LESS=-R
+export LESS_TERMCAP_mb=$'\E[1;31m'                                      # begin bold
+export LESS_TERMCAP_md=$'\E[1;36m'                                      # begin blink
+export LESS_TERMCAP_me=$'\E[0m'                                         # reset bold/blink
+export LESS_TERMCAP_so=$'\E[01;44;33m'                                  # begin reverse video
+export LESS_TERMCAP_se=$'\E[0m'                                         # reset reverse video
+export LESS_TERMCAP_us=$'\E[1;32m'                                      # begin underline
+export LESS_TERMCAP_ue=$'\E[0m'                                         # reset underline
+
+# Get public IP
+alias public_ip='curl ipecho.net/plain ; echo'
+function myip {
+    local api
+    case "$1" in
+        "-4")
+            api="http://v4.ipv6-test.com/api/myip.php"
+            ;;
+        "-6")
+            api="http://v6.ipv6-test.com/api/myip.php"
+            ;;
+        *)
+            api="http://ipv6-test.com/api/myip.php"
+            ;;
+    esac
+    curl -s "$api"
+    echo # Newline.
+}
 
 # FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# export FZF_DEFAULT_COMMAND="fd . $HOME"
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd -t d . $HOME"
 
+# Some fancy file previewing using fzf + fd + bat (ps: you can use mouse to scroll)
+alias prev="fd -d 1 -t f | fzf --preview 'bat --color always --theme Dracula {}' --preview-window=right:60%"
+
+# TODO: slightly buggy, misses files
+function icd() {
+    if [[ "$#" != 0 ]]; then
+        builtin cd "$@";
+        return
+    fi
+    while true; do
+        local lsd=$(echo ".." && ls -p | grep '/$' | sed 's;/$;;')
+        local dir="$(printf '%s\n' "${lsd[@]}" |
+            fzf --reverse --preview '
+                __cd_nxt="$(echo {})";
+                __cd_path="$(echo $(pwd)/${__cd_nxt} | sed "s;//;/;")";
+                echo $__cd_path;
+                echo;
+                ls -p --color=always "${__cd_path}";
+        ')"
+        [[ ${#dir} != 0 ]] || return 0
+        builtin cd "$dir" &> /dev/null
+    done
+}
 
 # SDL2
 export LIBRARY_PATH="$LIBRARY_PATH:/usr/local/lib"
