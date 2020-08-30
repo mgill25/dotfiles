@@ -5,9 +5,12 @@ set shell=/usr/local/bin/zsh
 
 set visualbell t_vb=    " turn off error beep/flash
 set novisualbell        " turn off visual bell
-
+set relativenumber
 set noerrorbells visualbell t_vb=
 autocmd GUIEnter * set visualbell t_vb=
+
+" true colors are required for vim in terminal
+set termguicolors
 
 filetype indent plugin on
 filetype plugin on
@@ -43,6 +46,10 @@ set shiftround
 "set shiftwidth=4
 set autochdir
 
+" Per default, netrw leaves unmodified buffers open. This autocommand
+" deletes netrw's buffer once it's hidden (using ':q', for example)
+autocmd FileType netrw setl bufhidden=delete
+
 autocmd FileType python set tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType javascript set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4 softtabstop=4
@@ -66,6 +73,34 @@ let mapleader = ";" "Changing the default <leader> key from \ to ;
 nmap <silent> ,/ :nohlsearch<CR>
 
 nnoremap <leader>v :e ~/.vimrc<CR>
+nnoremap <leader>m :tabnext<CR>
+nnoremap <leader>n :tabprevious<CR>
+nnoremap [b :bprevious<CR>
+nnoremap <silent> <leader>r :call CycleNumbering()<CR>
+nnoremap <leader>t :TagbarToggle<CR>
+
+
+" More natural pane navigation
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" Comment Mapping using cmd key like Sublime; ref: https://stackoverflow.com/a/30831547
+nnoremap <D-/> :call NERDComment(0,"toggle")<CR>
+vnoremap <D-/> :call NERDComment(0,"toggle")<CR>
+
+" Lightline
+nnoremap <leader>ll :LightlineReload<CR>
+
+set splitbelow
+set splitright
+"Max out the height of the current split
+" > ctrl + w _
+"Max out the width of the current split
+" > ctrl + w |
+"Normalize all split sizes, which is very handy when resizing terminal
+" > ctrl + w =
 
 " plugins
 " Specify a directory for plugins
@@ -76,19 +111,35 @@ call plug#begin('~/.local/share/nvim/plugged')
 Plug 'flazz/vim-colorschemes'
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
+Plug 'pbogut/fzf-mru.vim'
+Plug 'easymotion/vim-easymotion'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'airblade/vim-gitgutter'
 Plug 'cespare/vim-toml'
 Plug 'racer-rust/vim-racer'
+Plug 'itchyny/lightline.vim'
+Plug 'joshdick/onedark.vim'
+Plug 'srcery-colors/srcery-vim'
+Plug 'sainnhe/gruvbox-material'
+Plug 'huyvohcmc/atlas.vim'
+Plug 'chuling/equinusocio-material.vim'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'majutsushi/tagbar'
+Plug 'preservim/nerdcommenter'
+Plug 'ludovicchabant/vim-gutentags'
 call plug#end()                         " Initialize plugin system
 
-" set colorscheme
-" colorscheme solarized8_dark_flat
-" colorscheme gruvbox
+" Mappings
+nnoremap <leader>d :bd<CR>
+nnoremap <leader>w :bd!<CR>
+
 " set bg=light
 " colorscheme 256-grayvim
-colorscheme Tomorrow
+" colorscheme Tomorrow
 
 " FZF Settings
 " This is the default extra key bindings
@@ -107,6 +158,8 @@ let g:fzf_layout = { 'down': '~40%' }
 " let g:fzf_layout = { 'window': '-tabnew' }
 " let g:fzf_layout = { 'window': '10new' }
 let g:fzf_prefer_tmux = 1 
+" Empty value to disable preview window altogether
+let g:fzf_preview_window = ''
 
 " Customize fzf colors to match your color scheme
 let g:fzf_colors =
@@ -130,13 +183,175 @@ let g:fzf_colors =
 " explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
+" Vim-Go
+let g:go_fmt_command = "goimports"
+
 " Fuzzy finder shortcuts (with some fugitive shortcuts mixed in)
 nnoremap <C-p> :Files<CR>
-nnoremap <C-g> :GFiles<CR>
+nnoremap <leader>g :GFiles<CR>
 nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>c :Colors<CR>
-nnoremap <leader>s :Ag
+nnoremap <leader>s :Rg
+nnoremap <leader>ln :BLines<CR>
+nnoremap <leader>la :Lines<CR>
+nnoremap <leader>gc :Commits<CR>
 nnoremap <leader>gs :Gstatus<CR>
+
+" FZF MRU Cache Plugin settings
+map <leader>a :FZFMru<CR>
+let g:fzf_mru_relative=1
+let g:fzf_mru_no_sort=1
+
+" Q Mappings
+" Better command history with q:
+command! CmdHist call fzf#vim#command_history({'right': '40'})
+nnoremap q: :CmdHist<CR>
+
+" Better search history
+command! QHist call fzf#vim#search_history({'right': '40'})
+nnoremap q/ :QHist<CR>
 
 " Rust stuff
 let g:racer_cmd = "/Users/manishgill/.cargo/bin/racer"
+
+" Functions
+function! CycleNumbering() abort
+    if exists('+relativenumber')
+        execute {
+            \ '00': 'set relativenumber       | set number',
+            \ '01': 'set norelativenumber     | set number',
+            \ '10': 'set norelativenumber     | set nonumber',
+            \ '11': 'set norelativenumber     | set number' }[&number . &relativenumber]
+    else
+        " No relative numbering, just toggle numbers on and off
+        set number!<CR>
+    endif
+endfunction
+
+function! s:tags_sink(line)
+  let parts = split(a:line, '\t\zs')
+  let excmd = matchstr(parts[2:], '^.*\ze;"\t')
+  execute 'silent e' parts[1][:-2]
+  let [magic, &magic] = [&magic, 0]
+  execute excmd
+  let &magic = magic
+endfunction
+
+function! s:tags()
+  if empty(tagfiles())
+    echohl WarningMsg
+    echom 'Preparing tags'
+    echohl None
+    call system('ctags -R')
+  endif
+
+call fzf#run({
+  \ 'source':  'cat '.join(map(tagfiles(), 'fnamemodify(v:val, ":S")')).
+  \            '| grep -v -a ^!',
+  \ 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --tiebreak=index',
+  \ 'down':    '40%',
+  \ 'sink':    function('s:tags_sink')})
+endfunction
+
+command! Tags call s:tags()
+
+" Lightline
+let g:lightline = {
+        \ 'colorscheme': 'onedark',
+        \ 'active': {
+            \   'left': [ [ 'mode', 'paste' ],
+            \             [ 'gitbranch', 'readonly', 'gitgutter', 'filename', 'modified' ] ]
+            \ },
+        \ 'component_function': {
+            \   'gitbranch': 'FugitiveHead',
+            \   'gitgutter': 'LightLineGitGutter',
+            \ },
+        \}
+"        \ 'separator': { 'left': '▓▒░', 'right': '░▒▓' },
+"        \ 'subseparator': { 'left': '>', 'right': '' }
+" convenience function - because lightline colorscheme
+" disappears after vimrc reload
+command! LightlineReload call LightlineReload()
+function! LightlineReload()
+  call lightline#init()
+  call lightline#colorscheme()
+  call lightline#update()
+endfunction
+
+function! LightLineGitGutter()
+   if ! exists('*GitGutterGetHunkSummary')
+         \ || ! get(g:, 'gitgutter_enabled', 0)
+         \ || winwidth('.') <= 90
+     return ''
+   endif
+   let symbols = [
+         \ g:gitgutter_sign_added,
+         \ g:gitgutter_sign_modified,
+         \ g:gitgutter_sign_removed
+         \ ]
+   let hunks = GitGutterGetHunkSummary()
+   let ret = []
+   for i in [0, 1, 2]
+     if hunks[i] > 0
+       call add(ret, symbols[i] . hunks[i])
+     endif
+   endfor
+   return join(ret, ' ')
+endfunction
+
+function! LightLineFilename()
+   return ('' != LightLineReadonly() ? LightLineReadonly() . ' ' : '') .
+       \ ('' != expand('%:t') ? expand('%:t') : '[No Name]') .
+       \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
+endfunction
+
+
+if has("gui_vimr")
+        " ~~~ Day Time ~~~
+        " colorscheme python
+        " colorscheme github
+        " colorscheme seoul256-light
+        " ~~~ Night Time ~~~
+        " colorscheme sexy-railscasts
+        " colorscheme onedark
+        " colorscheme badwolf
+        " colorscheme paramount
+        " colorscheme meta5
+        " colorscheme happy_hacking
+        " colorscheme atlas
+        colorscheme srcery-drk
+        " colorscheme landscape
+        " colorscheme equinusocio_material
+        " colorscheme monokai-phoenix
+        " colorscheme fruity
+else
+        colorscheme default
+endif
+
+let g:equinusocio_material_style = 'pure'
+let g:equinusocio_material_hide_vertsplit = 1
+let g:equinusocio_material_bracket_improved = 1
+
+" NERDCommenter Options
+let g:NERDSpaceDelims = 1               " Add spaces after comment delimiters by default
+let g:NERDDefaultAlign = 'left'         " Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDAltDelims_java = 1            " Set a language to use its alternate delimiters by default
+let g:NERDCompactSexyComs = 1           " Use compact syntax for prettified multi-line comments
+let g:NERDCommentEmptyLines = 1         " Allow commenting and inverting empty lines (useful when commenting a region)
+let g:NERDToggleCheckAllLines = 1       " Enable NERDCommenterToggle to check all selected lines is commented or not
+let g:NERDTrimTrailingWhitespace = 1    " Enable trimming of trailing whitespace when uncommenting
+let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }   " Add your own custom formats or override the defaults
+
+" GutenTags
+let g:gutentags_exclude = [
+      \ '*.min.js',
+      \ '*html*',
+      \ 'jquery*.js',
+      \ '*/vendor/*',
+      \ '*/node_modules/*',
+      \ '*/python2.7/*',
+      \ '*/migrate/*.rb'
+      \ ]
+let g:gutentags_generate_on_missing = 0
+let g:gutentags_generate_on_write = 0
+let g:gutentags_generate_on_new = 0
